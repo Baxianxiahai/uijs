@@ -2186,7 +2186,7 @@ case "GetCameraStatus":
         $camerastatus=array(
                    'v'=>"120~",
                    'h'=>"120~",
-                   'url'=>"/video/screenshot/".(string)$videocode.".png"
+                   'url'=>"./video/screenshot/".(string)$videocode.".png"
                 );
             $retval=array(
                 'status'=>'true',
@@ -2245,7 +2245,7 @@ case "CameraVAdj":
             $camerastatus=array(
                        'v'=>"120~",
                        'h'=>"120~",
-                       'url'=>"/video/screenshot/".(string)$videocode.".png"
+                       'url'=>"./video/screenshot/".(string)$videocode.".png"
                     );
                 $retval=array(
                     'status'=>'true',
@@ -2277,7 +2277,7 @@ case "CameraHAdj":
                 $camerastatus=array(
                            'v'=>"120~",
                            'h'=>"120~",
-                           'url'=>"/video/screenshot/".(string)$videocode.".png"
+                           'url'=>"./video/screenshot/".(string)$videocode.".png"
                         );
                     $retval=array(
                         'status'=>'true',

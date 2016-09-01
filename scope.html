@@ -1900,6 +1900,7 @@
                                         </div>
 
                                         <div class="row clearfix" id="MPMonitorStaticTableView">
+
                                             <div class="col-md-12 column">
                                                 <button type="button" class="btn btn-primary" id="MonitorTableFlash">刷新</button>
                                                 <label  style="min-width: 20px"></label>
@@ -1910,6 +1911,7 @@
                                                 <table id="MonitorQueryTable" class="display" cellspacing="0" width="100%"  style="white-space: nowrap;">
                                                 </table>
                                             </div>
+
                                         </div>
                                         <div class="row clearfix" id="WarningCheckView">
                                             <div class="col-md-12 col-sm-12 col-xs-12 column" >
@@ -4128,8 +4130,8 @@
                 <div class="modal-body" id="VideoSelectionContent" style="min-height: 700px;">
                     <div class="col-md-6 col-sm-6 col-xs-12 column" >
                         <div class="input-group ">
-                            <span class="input-group-addon" id="VideoModuleStatCode" style="min-width: 100px">选中地点</span>
-                            <input type="text" class="form-control" placeholder="请在地图上选择一个地点" aria-describedby="basic-addon1" id="VideoModuleStatCode_Input" disabled="disabled"/>
+                            <span class="input-group-addon" id="VideoModuleStatCode" style="min-width: 100px">站点代码</span>
+                            <input type="text" class="form-control" placeholder="站点代码" aria-describedby="basic-addon1" id="VideoModuleStatCode_Input" disabled="disabled"/>
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-6 col-xs-12 column" >
@@ -4196,31 +4198,20 @@
                     </div>
                     <p/>
                     <div class="col-md-12 col-sm-12 col-xs-12 column" >
-                        <!--div class="col-md-2 col-sm-2 col-xs-2 column" >
-                            <button type="button" class="btn btn-primary" id="Camera_Left" style=" height:240px; display:table;margin-left: auto;margin-right: auto;margin-top:42px">向左</button>
-                        </div>
-                        <div class="col-md-8 col-sm-8 col-xs-8 column" >
-                            <button type="button" class="btn btn-primary" id="Camera_Up" style=" width:320px; display:table;margin-left: auto;margin-right: auto">向上</button>
-                            <p/-->
-                            <img src="./video/screenshot/default.png" alt="当前显示" id="video_img" style=" width:320px; height:240px display:table;margin-left: 14px;margin-right: auto"/>
-                            <!--p/>
-                            <button type="button" class="btn btn-primary" id="Camera_Down" style=" width:320px; display:table;margin-left: auto;margin-right: auto">向下</button>
-                        </div>
-                        <div class="col-md-2 col-sm-2 col-xs-2 column" >
-                            <button type="button" class="btn btn-primary" id="Camera_Right" style=" height:240px; display:table;margin-left: auto;margin-right: auto;margin-top:42px">向右</button>
-                        </div-->
-
+                        <p style="text-align : center">
+                            <img src="./video/screenshot/default.png" alt="当前显示" id="video_img" style=" width:320px; height:240px ;margin:auto;"/>
+                        </p>
                     </div>
                     <p/>
-                    <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                    <div class="col-md-12 col-sm-12 col-xs-12 column">
                         <div class="cycle-circle">
                             <div class="cycle-ring">
-                                <a href="http://www.jiaoben123.com/" class="cycle-menuItem cycle-a fa fa-angle-double-up fa-2x"></a>
-                                <a href="http://www.jiaoben123.com/" class="cycle-menuItem cycle-a fa fa-angle-double-right fa-2x"></a>
-                                <a href="http://www.jiaoben123.com/" class="cycle-menuItem cycle-a fa fa-angle-double-down fa-2x"></a>
-                                <a href="http://www.jiaoben123.com/" class="cycle-menuItem  cycle-a fa fa-angle-double-left fa-2x"></a>
+                                <a href="#" class="cycle-menuItem cycle-a fa fa-angle-double-up fa-2x" id="btn_camera_up"></a>
+                                <a href="#" class="cycle-menuItem cycle-a fa fa-angle-double-right fa-2x" id="btn_camera_right"></a>
+                                <a href="#" class="cycle-menuItem cycle-a fa fa-angle-double-down fa-2x" id="btn_camera_down"></a>
+                                <a href="#" class="cycle-menuItem  cycle-a fa fa-angle-double-left fa-2x" id="btn_camera_left"></a>
                             </div>
-                            <a class="cycle-center cycle-a fa fa-arrows fa-2x"></a>
+                            <!--a class="cycle-center"></a-->
                         </div>
                     </div>
                 </div>

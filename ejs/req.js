@@ -1327,7 +1327,7 @@
             var camerastatus={
                 h:"120~",
                 v:"120~",
-                url:"/video/screenshot/"+videocode+".png"
+                url:"./video/screenshot/"+videocode+".png"
             }
             var retval={
                 status:"true",
@@ -1352,7 +1352,7 @@
             var camerastatus={
                 h:"120~",
                 v:"120~",
-                url:"/video/screenshot/"+videocode+".png"
+                url:"./video/screenshot/"+videocode+".png"
             }
             var retval={
                 status:"true",
@@ -1367,7 +1367,7 @@
             var camerastatus={
                 h:"120~",
                 v:"120~",
-                url:"/video/screenshot/"+videocode+".png"
+                url:"./video/screenshot/"+videocode+".png"
             }
             var retval={
                 status:"true",

@@ -195,9 +195,10 @@ $(document).ready(function() {
 
 //cycle button
     var items = document.querySelectorAll('.cycle-menuItem');
+    console.log("items="+items.length);
     for(var i = 0, l = items.length; i < l; i++) {
         items[i].style.left = (50 - 35*Math.cos(-0.5 * Math.PI - 2*(1/l)*i*Math.PI)).toFixed(4) + "%";
-        items[i].style.top = (50 + 35*Math.sin(-0.5 * Math.PI - 2*(1/l)*i*Math.PI)).toFixed(4) + "%";
+        items[i].style.top = (50 + 35*Math.sin(-0.5 * Math.PI - 2*(1/l)*i*Math.PI)).toFixed(4)-(i+1)*15 + "%";
     }
     document.querySelector('.cycle-circle').classList.toggle('open');
 
@@ -1015,6 +1016,12 @@ $(document).ready(function() {
     $("#VideoHour_choice").change(function(){
         video_selection_change();
     });
+    $("#VideoModuleHour_choice").change(function(){
+        video_Module_selection_change();
+    });
+    $("#VideoModule_query_Input").change(function(){
+        video_Module_selection_change();
+    });
     $("#Alarm_query_Input").change(function(){
         $("#Alarm_query_Input").val(date_compare_today($("#Alarm_query_Input").val()));
     });
@@ -1055,6 +1062,13 @@ $(document).ready(function() {
         video_windows(vcraddress);
         //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
     });
+	$("#ModuleVCRshow").on('click',function() {
+        var vcraddress = $("#ModuleVCRStatus_choice").val();
+		//console.log("vcraddress="+vcraddress);
+        if(vcraddress === "") return;
+        video_windows(vcraddress);
+        //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
+    });
     $("#MonitorTableFlash").on('click',function() {
         query_static_warning();
     });
@@ -1086,6 +1100,32 @@ $(document).ready(function() {
         touchcookie();
         update_version();
     });
+	$("#btn_camera_up").on('click',function() {
+		var camera_state_code = $('#VideoModuleStatCode_Input').val();
+		if(camera_state_code!==undefined && camera_state_code!==""){
+			move_camera(camera_state_code,"v","1");
+		}
+    });
+	$("#btn_camera_down").on('click',function() {
+		var camera_state_code = $('#VideoModuleStatCode_Input').val();
+		if(camera_state_code!==undefined && camera_state_code!==""){
+			move_camera(camera_state_code,"v","-1");
+		}
+    });
+	$("#btn_camera_right").on('click',function() {
+		var camera_state_code = $('#VideoModuleStatCode_Input').val();
+		if(camera_state_code!==undefined && camera_state_code!==""){
+			move_camera(camera_state_code,"v","1");
+		}
+    });
+	$("#btn_camera_left").on('click',function() {
+		var camera_state_code = $('#VideoModuleStatCode_Input').val();
+		if(camera_state_code!==undefined && camera_state_code!==""){
+			move_camera(camera_state_code,"v","-1");
+		}
+    });
+
+
 
     //alert($(window).height());
     //alert($(window).width());
@@ -4309,7 +4349,7 @@ function addMarker(point){
 
 }
 function video_selection_change(){
-    console.log($("#Video_query_Input").val());
+    //console.log($("#Video_query_Input").val());
     if(monitor_selected!==null && $("#Video_query_Input").val()!==""){
         get_video(monitor_selected.StatCode,$("#Video_query_Input").val(),$("#VideoHour_choice").val());
     }
@@ -4337,6 +4377,39 @@ function get_video(StatCode,date,hour){
             txt = txt +"<option value='"+VideoList[i].id+"'>"+VideoList[i].attr+"</option>";
         }
         $("#VCRStatus_choice").append(txt);
+        //console.log(monitor_map_list);
+    });
+}
+function video_Module_selection_change(){
+    //console.log($("#Video_query_Input").val());
+
+    if($("#VideoModuleStatCode_Input").val()!=="" && $("#VideoModule_query_Input").val()!==""){
+        get_Module_video($("#VideoModuleStatCode_Input").val(),$("#VideoModule_query_Input").val(),$("#VideoModuleHour_choice").val());
+    }
+}
+function get_Module_video(StatCode,date,hour){
+    var map={
+        action:"GetVideoList",
+        id: usr.id,
+        StatCode:StatCode,
+        date:date,
+        hour:hour
+    };
+    //console.log(map);
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var VideoList = result.ret;
+        $("#ModuleVCRStatus_choice").empty();
+        var txt="";
+        for( var i=0;i<VideoList.length;i++){
+            txt = txt +"<option value='"+VideoList[i].id+"'>"+VideoList[i].attr+"</option>";
+        }
+        $("#ModuleVCRStatus_choice").append(txt);
         //console.log(monitor_map_list);
     });
 }
@@ -4535,19 +4608,22 @@ function query_static_warning(){
         $("#MonitorFlashTime").append("最后刷新时间："+Last_update_date);
         var ColumnName = result.ColumnName;
         var TableData = result.TableData;
-        var txt = "<thead> <tr>";
+        var txt = "<thead> <tr><th></th>";
 		var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
         }
-        txt = txt +"<th></th></tr></thead>";
+        //txt = txt +"<th></th></tr></thead>";
+        txt = txt +"</tr></thead>";
         txt = txt +"<tbody>";
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
-            for(var j=0;j<TableData[i].length;j++){
+            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
+            txt = txt +"<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
+			for(var j=0;j<TableData[i].length;j++){
                 txt = txt +"<td>"+TableData[i][j]+"</td>";
             }
-            txt = txt + "<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' >视频</button></td>";
+            //txt = txt + "<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' >视频</button></td>";
             txt = txt +"</tr>";
         }
         txt = txt+"</tbody>";
@@ -5432,6 +5508,10 @@ function user_message_update(){
 }
 
 function change_camera_status(hvalue,vvalue,url){
+	var txt = "当前：水平="+hvalue+"/垂直="+vvalue+"；调节单位：水平="+camera_unit_h+"/垂直="+camera_unit_v;
+
+	$('#VideoModuleCameraState_Input').val(txt);
+	$('#video_img').attr("src",url);
 
 }
 function get_camera_unit(){
@@ -5444,7 +5524,7 @@ function get_camera_unit(){
         var ret = result.status;
         if(ret == "true"){
             camera_unit_h = result.ret.h;
-            camera_unit_v = result.ret.h;
+            camera_unit_v = result.ret.v;
         }else{
             show_alarm_module(true,"获取摄像头基本单位，请重新登录！"+result.msg);
         }
@@ -5469,7 +5549,7 @@ function get_camera_status(statcode){
     });
 }
 
-function change_camera_status(statcode,vorh,value){
+function move_camera(statcode,vorh,value){
     var map;
     if(vorh == "v"){
         map = {
@@ -5500,5 +5580,13 @@ function change_camera_status(statcode,vorh,value){
 function show_cameraModule(Statcode){
     modal_middle($('#VideoSelectionModule'));
     $('#VideoModuleStatCode_Input').val(Statcode);
+    $('#VideoModule_query_Input').val("");
+    $('#VideoModuleStatCode_Input').val("0");
+	$('#ModuleVCRStatus_choice').empty();
+	
+	get_camera_status(Statcode);
+
+
     $('#VideoSelectionModule').modal('show') ;
+    //document.querySelector('.cycle-circle').classList.toggle('open');
 }
