@@ -4620,6 +4620,7 @@ function query_static_warning(){
             txt = txt +"<tr>";
             //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
             txt = txt +"<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
+            //console.log("StateCode="+TableData[i][0]);
 			for(var j=0;j<TableData[i].length;j++){
                 txt = txt +"<td>"+TableData[i][j]+"</td>";
             }
@@ -4657,6 +4658,7 @@ function query_static_warning(){
         if_static_table_initialize = true;
         video_btn_click = function(){
             var statcode = $(this).attr('StateCode');
+            //console.log("StateCode_click="+statcode);
             if(statcode!==undefined ){
                 show_cameraModule(statcode);
             }
@@ -5581,7 +5583,7 @@ function show_cameraModule(Statcode){
     modal_middle($('#VideoSelectionModule'));
     $('#VideoModuleStatCode_Input').val(Statcode);
     $('#VideoModule_query_Input').val("");
-    $('#VideoModuleStatCode_Input').val("0");
+    //$('#VideoModuleStatCode_Input').val("0");
 	$('#ModuleVCRStatus_choice').empty();
 	
 	get_camera_status(Statcode);

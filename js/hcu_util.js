@@ -3,7 +3,7 @@
  */
 
 function log(str){
-    console.log(str);
+    //console.log(str);
 }
 function date_compare_today(date){
     var temp = date.split("-");
