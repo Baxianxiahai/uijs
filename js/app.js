@@ -374,7 +374,10 @@ function modal_middle(modal){
 
     setTimeout(function () {
         var _modal = $(modal).find(".modal-dialog");
-        _modal.animate({'margin-top': parseInt(($(window).height() - _modal.height())/2)}, 300 );
+        if(parseInt(($(window).height() - _modal.height())/2)>0){
+
+            _modal.animate({'margin-top': parseInt(($(window).height() - _modal.height())/2)}, 300 );
+        }
     },wait_time_short);
 }
 
