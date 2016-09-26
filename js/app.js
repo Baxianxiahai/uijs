@@ -7,7 +7,7 @@
 //切换生产环境要更新以下数据，包括logout函数
 var basic_address = getRelativeURL()+"/";
 console.log(basic_address);
-var wait_time_long =1500;
+var wait_time_long =3000;
 var wait_time_middle = 1000;
 var wait_time_short= 500;
 var cycle_time = 60000;
@@ -391,8 +391,10 @@ function PageInitialize(){
     get_user_information();
     get_sensor_list();
     get_camera_unit();
-    window.setTimeout(get_monitor_list, wait_time_middle);
-    window.setTimeout(nav_check, wait_time_short);
+
+    //hyj add in 20160926 for server very slow
+    //window.setTimeout(get_monitor_list, wait_time_middle);
+    //window.setTimeout(nav_check, wait_time_short);
     //window.setTimeout("get_monitor_list()", wait_time_middle);
     //window.setTimeout("nav_check()", wait_time_short);
 }
@@ -413,6 +415,9 @@ function get_user_information(){
             usr = result.ret;
             get_user_message();
             get_user_image();
+            //hyj add in 20160926 for server very slow
+            get_monitor_list();
+            nav_check();
         }
     });
 }
@@ -1008,7 +1013,7 @@ $(document).ready(function() {
                 query_alarm($("#Alarm_query_Input").val(),alarm_type_list[i].id,alarm_type_list[i].name);
             }
         }
-        window.setTimeout(show_table_tags, wait_time_long);
+        //window.setTimeout(show_table_tags, wait_time_long);
 
 
     });
@@ -1414,6 +1419,9 @@ function get_user_table(start,length){
 
         user_start = parseInt(result.start);
         user_total = parseInt(result.total);
+
+        //HYj add for server slow
+        draw_user_table_head();
     });
 }
 function del_user(id){
@@ -1507,6 +1515,8 @@ function get_user_proj(user){
             return;
         }
         user_selected_auth = result.ret;
+        //HYJ add for server slow;
+        draw_user_detail_panel();
     });
 }
 function user_intialize(start) {
@@ -1514,7 +1524,7 @@ function user_intialize(start) {
     user_table = null;
     get_user_table(start, table_row * 5);
     get_project_pg_list();
-    window.setTimeout(draw_user_table_head, wait_time_middle);
+    //window.setTimeout(draw_user_table_head, wait_time_middle);
 }
 function draw_user_table_head(){
     if(null === user_table)return;
@@ -1637,7 +1647,7 @@ function draw_user_table(data){
 }
 function Initialize_user_detail(){
     get_user_proj(user_selected.id);
-    window.setTimeout(draw_user_detail_panel, wait_time_short);
+    //window.setTimeout(draw_user_detail_panel, wait_time_short);
 }
 function clear_user_detail_panel(){
     user_selected = null;
@@ -1935,6 +1945,8 @@ function get_pg_table(start,length){
 
         pg_start = parseInt(result.start);
         pg_total = parseInt(result.total);
+        //HYJ add for server slow
+        draw_pg_table_head();
     });
 }
 function del_pg(id){
@@ -2028,6 +2040,8 @@ function get_pg_proj(pgid){
             return;
         }
         pg_selected_proj = result.ret;
+        // HYJ add for server slow
+        draw_pg_detail_panel();
     });
 }
 function pg_intialize(start) {
@@ -2036,7 +2050,7 @@ function pg_intialize(start) {
     get_pg_table(start, table_row * 5);
     clear_pg_detail_panel();
     get_project_list();
-    window.setTimeout(draw_pg_table_head, wait_time_middle);
+    //window.setTimeout(draw_pg_table_head, wait_time_middle);
 }
 function draw_pg_table_head(){
     if(null === pg_table)return;
@@ -2155,7 +2169,7 @@ function draw_pg_table(data){
 }
 function Initialize_pg_detail(){
     get_pg_proj(pg_selected.PGCode);
-    window.setTimeout(draw_pg_detail_panel, wait_time_short);
+    //window.setTimeout(draw_pg_detail_panel, wait_time_short);
 }
 function clear_pg_detail_panel(){
     pg_selected = null;
@@ -2435,6 +2449,9 @@ function get_proj_table(start,length){
 
         project_start = parseInt(result.start);
         project_total = parseInt(result.total);
+        //HYJ add for server slow
+        draw_proj_table_head();
+
     });
 }
 function del_proj(ProjCode){
@@ -2528,13 +2545,15 @@ function get_proj_point(ProjCode){
             return;
         }
         project_selected_point = result.ret;
+        //HYJ add for server slow;
+        draw_proj_detail_panel();
     });
 }
 function proj_intialize(start) {
     project_initial = true;
     project_table = null;
     get_proj_table(start, table_row * 5);
-    window.setTimeout(draw_proj_table_head, wait_time_middle);
+    //window.setTimeout(draw_proj_table_head, wait_time_middle);
 }
 function draw_proj_table_head(){
     if(null === project_table)return;
@@ -2653,7 +2672,7 @@ function draw_proj_table(data){
 
 function Initialize_proj_detail(){
     get_proj_point(project_selected.ProjCode);
-    window.setTimeout(draw_proj_detail_panel, wait_time_short);
+    //window.setTimeout(draw_proj_detail_panel, wait_time_short);
 }
 function clear_proj_detail_panel(){
     project_selected = null;
@@ -2910,6 +2929,8 @@ function get_version_list(){
             return;
         }
         software_version_list = result.ret;
+        //HYJ add for server slow, because this should waiting for 2 request, and It is ugly to add a 2 flag thread, so I add a timeout after 1 message is returned.
+        window.setTimeout(draw_parameter_page, wait_time_middle);
     });
 }
 
@@ -2963,9 +2984,9 @@ function update_version(){
 }
 function parameter_initialize(){
     parameter_initial = true;
-    get_version_list();
     if(project_list === null)get_project_list();
-    window.setTimeout(draw_parameter_page, wait_time_middle);
+    get_version_list();
+    //window.setTimeout(draw_parameter_page, wait_time_middle);
 
 }
 function draw_parameter_page(){
@@ -3018,6 +3039,8 @@ function get_point_table(start,length){
 
         point_start = parseInt(result.start);
         point_total = parseInt(result.total);
+        //HYJ add for server slow
+        draw_point_table_head();
     });
 }
 function del_point(StatCode){
@@ -3123,6 +3146,8 @@ function get_point_device(StatCode){
             return;
         }
         point_selected_device = result.ret;
+        //HYJ add for server slow;
+        draw_point_detail_panel();
     });
 }
 function point_intialize(start) {
@@ -3130,7 +3155,7 @@ function point_intialize(start) {
     point_table = null;
     get_project_list();
     get_point_table(start, table_row * 5);
-    window.setTimeout(draw_point_table_head, wait_time_middle);
+    //window.setTimeout(draw_point_table_head, wait_time_middle);
     clear_point_detail_panel();
 }
 function draw_point_table_head(){
@@ -3265,7 +3290,7 @@ function draw_point_table(data){
 
 function Initialize_point_detail(){
     get_point_device(point_selected.StatCode);
-    window.setTimeout(draw_point_detail_panel, wait_time_short);
+    //window.setTimeout(draw_point_detail_panel, wait_time_short);
 }
 function clear_point_detail_panel(){
     point_selected = null;
@@ -3684,6 +3709,9 @@ function get_dev_table(start,length){
 
         device_start = parseInt(result.start);
         device_total = parseInt(result.total);
+
+        //HYJ add for server slow, this will wait 3 message return.
+        window.setTimeout(draw_dev_table_head, wait_time_middle);
     });
 }
 function del_dev(DevCode){
@@ -3768,7 +3796,7 @@ function dev_intialize(start) {
     get_dev_table(start, table_row * 5);
     get_project_list();
     get_proj_point_list();
-    window.setTimeout(draw_dev_table_head, wait_time_middle);
+    //window.setTimeout(draw_dev_table_head, wait_time_middle);
     clear_dev_detail_panel();
 }
 function draw_dev_table_head(){
@@ -3894,7 +3922,7 @@ function draw_dev_table(data){
 function Initialize_dev_detail(){
     //get_dev_device(device_selected.StatCode);
     get_device_sensor(device_selected.DevCode);
-    window.setTimeout(draw_dev_detail_panel, wait_time_short);
+    //window.setTimeout(draw_dev_detail_panel, wait_time_short);
 }
 function clear_dev_detail_panel(){
     project_selected = null;
@@ -4288,7 +4316,8 @@ function initializeMap(){
     //map_MPMonitor.addControl(new BMap.ScaleControl());
     map_MPMonitor.enableScrollWheelZoom();
     map_MPMonitor.centerAndZoom(usr.city,15);
-    window.setTimeout(addMarker, wait_time_middle);
+    // hyj this will not be a problem because the bmap initialization will cost several seconds.
+    window.setTimeout(addMarker, wait_time_long);
     //addMarker();
     map_initialized=true;
     //$(window).resize();
@@ -4895,6 +4924,9 @@ function query_alarm(date,type,name){
             }]
         });
         $("#Warning_"+type+"_month").css("display","none");
+
+        //HYJ add for server slow
+        show_table_tags();
     });
 }
 function initializeAlarmMap(){
@@ -4910,8 +4942,9 @@ function initializeAlarmMap(){
     //map_MPMonitor.addControl(new BMap.ScaleControl());
     map_MPMonitor.enableScrollWheelZoom();
     map_MPMonitor.centerAndZoom(usr.city,15);
-    window.setTimeout(alarm_addMarker, wait_time_middle);
-    window.setTimeout(build_alarm_tabs, wait_time_middle);
+    //HYJ this will not be a problem because bmap will cost
+    window.setTimeout(alarm_addMarker, wait_time_long);
+    window.setTimeout(build_alarm_tabs, wait_time_long);
     //alarm_addMarker();
     alarm_map_initialized=true;
 }
@@ -5328,6 +5361,8 @@ function get_device_sensor(DevCode){
             return;
         }
         device_selected_sensor = result.ret;
+        //hyj add for server slow.
+        draw_dev_detail_panel();
     });
 }
 function get_sensor_name(sensorid){
