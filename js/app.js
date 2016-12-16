@@ -2164,8 +2164,8 @@ function show_new_user_module(){
 function submit_new_user_module(){
     var new_usr_name = $("#NewUsername_Input").val();
     var new_usr_nick = $("#NewUserNick_Input").val();
-    var new_usr_password = str_sha1($("#NewPassword_Input").val());
-    var new_usr_repassword = str_sha1($("#NewRePassword_Input").val());
+    var new_usr_password = b64_sha1($("#NewPassword_Input").val());
+    var new_usr_repassword = b64_sha1($("#NewRePassword_Input").val());
     var new_usr_mobile = $("#NewUserMobile_Input").val();
     var new_usr_mail = $("#NewUserMail_Input").val();
     var new_usr_memo = $("#NewUserMemo_Input").val();
@@ -2268,8 +2268,8 @@ function show_mod_user_module(user,user_auth){
 function submit_mod_user_module(){
     var new_usr_name = $("#NewUsername_Input").val();
     var new_usr_nick = $("#NewUserNick_Input").val();
-    var new_usr_password = str_sha1($("#NewPassword_Input").val());
-    var new_usr_repassword = str_sha1($("#NewRePassword_Input").val());
+    var new_usr_password = b64_sha1($("#NewPassword_Input").val());
+    var new_usr_repassword = b64_sha1($("#NewRePassword_Input").val());
     var new_usr_mobile = $("#NewUserMobile_Input").val();
     var new_usr_mail = $("#NewUserMail_Input").val();
     var new_usr_memo = $("#NewUserMemo_Input").val();
