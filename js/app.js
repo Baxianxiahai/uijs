@@ -155,7 +155,8 @@ var alarm_array = null;
 var export_table_name = null;
 var if_table_initialize = false;
 
-
+var Audit_Stability_table_initialized= false;
+var if_audit_stability_table_initialized =false;
 //Sensor Control
 var sensor_list=null;
 var select_sensor_devcode=null;
@@ -1154,7 +1155,9 @@ $(document).ready(function() {
     $("#MonitorTableFlash").on('click',function() {
         query_static_warning();
     });
-
+    $("#AuditStabilityFlash").on('click',function() {
+        query_audit_stability();
+    });
 
     $("#menu_user_profile").on('click',function() {
         touchcookie();
@@ -1476,8 +1479,9 @@ function Audit_Target(){
 }
 function Audit_Stability(){
     clear_window();
-    write_title("施工中","");
-    $("#Undefined").css("display","block");
+    write_title("稳定性统计","请手工刷新");
+    $("#AuditStabilityView").css("display","block");
+    query_audit_stability();
 }
 function Audit_Availability(){
     clear_window();
@@ -1590,6 +1594,7 @@ function clear_window(){
     $("#KeyManageView").css("display","none");
     $("#KeyHistoryView").css("display","none");
     $("#KeyAuthView").css("display","none");
+    $("#MPMonitorStaticTableView").css("display","none");
 }
 
 
@@ -2282,7 +2287,7 @@ function submit_mod_user_module(){
         $("#NewPassword_Input").focus();
         return;
     }
-    if(new_usr_password!=="")new_usr_password= b64_sha1(new_usr_password);
+    if(new_usr_repassword!=="")new_usr_repassword= b64_sha1(new_usr_repassword);
     var user = {
         id: user_selected.id,
         name: new_usr_name,
@@ -5851,7 +5856,80 @@ function query_static_warning(){
     });*/
 }
 
+function query_audit_stability(){
+    //if(Audit_Stability_table_initialized !== true) return;
+    var map={
+        action:"GetAuditStabilityTable",
+        type:"query",
+        user:usr.id
+    };
+    var GetAuditStabilityTable_callback= function(result){
+        //log(data);
+        //var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var Last_update_date=(new Date()).Format("yyyy-MM-dd_hhmmss");
+        $("#AuditStabilityFlashTime").empty();
+        $("#AuditStabilityFlashTime").append("最后刷新时间："+Last_update_date);
+        var ColumnName = result.ret.ColumnName;
+        var TableData = result.ret.TableData;
+        //var txt = "<thead> <tr><th></th><th></th>";
+        var txt = "<thead> <tr>";
+        var i;
+        for( i=0;i<ColumnName.length;i++){
+            txt = txt +"<th>"+ColumnName[i]+"</th>";
+        }
+        //txt = txt +"<th></th></tr></thead>";
+        txt = txt +"</tr></thead>";
+        txt = txt +"<tbody>";
+        for( i=0;i<TableData.length;i++){
+            txt = txt +"<tr>";
+            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
+            //txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
+            //console.log("StateCode="+TableData[i][0]);
+            for(var j=0;j<TableData[i].length;j++){
+                txt = txt +"<td>"+TableData[i][j]+"</td>";
+            }
+            //txt = txt + "<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' >视频</button></td>";
+            txt = txt +"</tr>";
+        }
+        txt = txt+"</tbody>";
+        $("#AuditStabilityTable").empty();
+        $("#AuditStabilityTable").append(txt);
+        if(if_audit_stability_table_initialized) $("#AuditStabilityTable").DataTable().destroy();
 
+        //console.log(monitor_map_list);
+
+        var show_table  = $("#AuditStabilityTable").DataTable( {
+            //dom: 'T<"clear">lfrtip',
+            "scrollY": false,
+            "scrollCollapse": true,
+
+            "scrollX": true,
+            "searching": false,
+            "autoWidth": true,
+            "lengthChange":false,
+            //bSort: false,
+            //aoColumns: [ { sWidth: "45%" }, { sWidth: "45%" }, { sWidth: "10%", bSearchable: false, bSortable: false } ],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '导出到excel',
+                    filename: "MonitorData"+Last_update_date
+                }
+            ]
+
+        } );
+        if_audit_stability_table_initialized = true;
+
+        //$(".lock_btn").on('click',lock_btn_click);
+    };
+    JQ_get(request_head,map,GetAuditStabilityTable_callback);
+
+}
 
 
 //Open Lock History query
