@@ -1594,7 +1594,7 @@ function clear_window(){
     $("#KeyManageView").css("display","none");
     $("#KeyHistoryView").css("display","none");
     $("#KeyAuthView").css("display","none");
-    $("#MPMonitorStaticTableView").css("display","none");
+    $("#AuditStabilityView").css("display","none");
 }
 
 
