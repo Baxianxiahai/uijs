@@ -88,7 +88,7 @@ var project_module_status;
 // parameter management
 var parameter_initial = false;
 var software_version_list = null;
-
+var  if_update_table_initialize = false;
 
 // monitor point table control
 var point_initial = false;
@@ -144,6 +144,7 @@ var  if_key_history_table_initialize = false;
 //key auth Control
 var Key_auth_initialized = false;
 //alarm Control
+var alarm_map_list = null;
 var alarm_type_list = null;
 var alarm_map_initialized = false;
 var alarm_selected = null;
@@ -170,6 +171,9 @@ var select_key_auth = null;
 //Camera Control
 var camera_unit_h;
 var camera_unit_v;
+
+var Longitude = null;
+var Latitude = null;
 /*
 var lineChartData = {
     labels : ["January","February","March","April","May","June","July"],
@@ -203,7 +207,7 @@ var lineChartData = {
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+getLocation();
 var CURRENT_URL = "desktop",
     $BODY = $('body'),
     $MENU_TOGGLE = $('#menu_toggle'),
@@ -441,6 +445,7 @@ function get_user_information(){
 
             get_sensor_list();
             get_camera_unit();
+            get_project_list();
             hide_menu();
         }
 	};
@@ -518,6 +523,7 @@ $(document).ready(function() {
     //var monitor_table_handle= setInterval("query_warning()", cycle_time);
     var monitor_handle= setInterval(get_monitor_warning_on_map, cycle_time);
     var monitor_table_handle= setInterval(query_warning, cycle_time);
+    var monitor_alarm_handle= setInterval(alarm_cycle, cycle_time);
     PageInitialize();
     $("#menu_logout").on('click',function(){
         logout();
@@ -2115,6 +2121,7 @@ function draw_user_detail_proj_table(){
 function draw_user_detail_key_table(){
     $("#Table_user_key").empty();
     txt ="<thead> <tr> <th>钥匙名称 </th> <th>归属项目 </th></tr> </thead> <tbody >";
+    if(user_selected_key === null) user_selected_key = [];
     for(var i=0;i<user_selected_key.length;i++){
         txt = txt + "<tr id='"+user_selected_key[i].id+"' class='keyrow'> <td>"+ user_selected_key[i].name+"</td> <td>"+ user_selected_key[i].domain+"</td></tr>";
     }
@@ -2147,6 +2154,7 @@ function show_new_user_module(){
 
     $("#duallistboxUserAuth_new").empty();
     var txt = "";
+    if(project_pg_list === null) project_pg_list = [];
     for(var i =0;i<project_pg_list.length;i++){
         txt = "<option value='"+project_pg_list[i].id+"'>"+project_pg_list[i].name+"</option>";
         $("#duallistboxUserAuth_new").append(txt);
@@ -2250,6 +2258,7 @@ function show_mod_user_module(user,user_auth){
 
     $("#duallistboxUserAuth_new").empty();
     var txt = "";
+    if(project_pg_list === null) project_pg_list = [];
     for(var i =0;i<project_pg_list.length;i++){
         txt = "<option value='"+project_pg_list[i].id+"'";
         for(var j=0;j<user_auth.length;j++){
@@ -2774,6 +2783,7 @@ function draw_pg_detail_panel(){
 
     $("#Table_pg_proj").empty();
     txt ="<thead> <tr> <th>下辖项目清单 </th> </tr> </thead> <tbody >";
+    if(pg_selected_proj === null) pg_selected_proj = [];
     for(var i=0;i<pg_selected_proj.length;i++){
         txt = txt + "<tr> <td>"+ pg_selected_proj[i].name+"</td> </tr>";
     }
@@ -2803,6 +2813,7 @@ function show_new_pg_module(){
 
     $("#duallistboxPGProj_new").empty();
     var txt = "";
+    if(project_list === null) project_list = [];
     for(var i =0;i<project_list.length;i++){
         txt = "<option value='"+project_list[i].id+"'>"+project_list[i].name+"</option>";
         $("#duallistboxPGProj_new").append(txt);
@@ -2902,6 +2913,7 @@ function show_mod_pg_module(pg,pg_proj){
 
     $("#duallistboxPGProj_new").empty();
     var txt = "";
+    if(project_list === null) project_list = [];
     for(var i =0;i<project_list.length;i++){
         txt = "<option value='"+project_list[i].id+"'";
         for(var j=0;j<pg_proj.length;j++){
@@ -3428,6 +3440,7 @@ function draw_proj_detail_panel(){
 function draw_proj_detail_point_table(){
     $("#Table_proj_point").empty();
     txt ="<thead> <tr> <th>站点清单 </th> </tr> </thead> <tbody >";
+    if(project_selected_point === null) project_selected_point = [];
     for(var i=0;i<project_selected_point.length;i++){
         txt = txt + "<tr> <td>"+ project_selected_point[i].name+"</td> </tr>";
     }
@@ -3437,6 +3450,7 @@ function draw_proj_detail_point_table(){
 function draw_proj_detail_key_table(){
     $("#Table_proj_key").empty();
     txt ="<thead> <tr> <th>钥匙名称 </th> <th>所有人 </th></tr> </thead> <tbody >";
+    if(project_selected_key === null) project_selected_key = [];
     for(var i=0;i<project_selected_key.length;i++){
         txt = txt + "<tr id='"+project_selected_key[i].id+"' class='keyrow'> <td>"+ project_selected_key[i].name+"</td> <td>"+ project_selected_key[i].username+"</td></tr>";
     }
@@ -3599,7 +3613,7 @@ function submit_mod_proj_module(){
 /*
 Parameter management view
  */
-
+/*
 function get_version_list(){
     var map={
         action:"GetVersionList",
@@ -3616,18 +3630,6 @@ function get_version_list(){
         window.setTimeout(draw_parameter_page, wait_time_middle);
     };
     JQ_get(request_head,map,get_version_list_callback);
-    /*
-    jQuery.get(request_head, map, function (data) {
-        log(data);
-        var result=JSON.parse(data);
-        if(result.status == "false"){
-            show_expiredModule();
-            return;
-        }
-        software_version_list = result.ret;
-        //HYJ add for server slow, because this should waiting for 2 request, and It is ugly to add a 2 flag thread, so I add a timeout after 1 message is returned.
-        window.setTimeout(draw_parameter_page, wait_time_middle);
-    });*/
 }
 
 function get_projdev_version(ProjCode){
@@ -3648,6 +3650,7 @@ function get_projdev_version(ProjCode){
         var projdev = result.ret;
         $("#duallistboxDevUpdate").empty();
         var txt = "";
+        if(projdev === null) projdev = [];
         for(var i =0;i<projdev.length;i++){
             txt = "<option value='"+projdev[i].DevCode+"'";
             txt = txt +">"+projdev[i].DevCode+projdev[i].ProjName+projdev[i].version+"</option>";
@@ -3656,24 +3659,7 @@ function get_projdev_version(ProjCode){
         $("#duallistboxDevUpdate").bootstrapDualListbox('refresh', true);
     };
     JQ_get(request_head,map,get_projdev_version_callback);
-    /*
-    jQuery.get(request_head, map, function (data) {
-        log(data);
-        var result=JSON.parse(data);
-        if(result.status == "false"){
-            show_expiredModule();
-            return;
-        }
-        var projdev = result.ret;
-        $("#duallistboxDevUpdate").empty();
-        var txt = "";
-        for(var i =0;i<projdev.length;i++){
-            txt = "<option value='"+projdev[i].DevCode+"'";
-            txt = txt +">"+projdev[i].DevCode+projdev[i].ProjName+projdev[i].version+"</option>";
-            $("#duallistboxDevUpdate").append(txt);
-        }
-        $("#duallistboxDevUpdate").bootstrapDualListbox('refresh', true);
-    });*/
+
 }
 function update_version(){
     var update_list = get_update_dev_list();
@@ -3700,21 +3686,12 @@ function update_version(){
         show_alarm_module(false,"设置成功，设备会在下个更新点更新",null);
     };
     JQ_get(request_head,map,update_version_callback);
-    /*
-    jQuery.get(request_head, map, function (data) {
-        log(data);
-        var result=JSON.parse(data);
-        if(result.status == "false"){
-            show_expiredModule();
-            return;
-        }
-        show_alarm_module(false,"设置成功，设备会在下个更新点更新");
-    });*/
+
 }
 function parameter_initialize(){
     parameter_initial = true;
     if(project_list === null)get_project_list();
-    get_version_list();
+    //get_version_list();
     //window.setTimeout(draw_parameter_page, wait_time_middle);
 
 }
@@ -3723,11 +3700,13 @@ function draw_parameter_page(){
     $("#UpdateVersion_choice").empty();
     var txt = "";
 	var i;
+    if(project_list === null) project_list = [];
     for( i=0;i<project_list.length;i++){
         txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
     }
     $("#UpdateProj_choice").append(txt);
     txt = "";
+    if(software_version_list === null) software_version_list = [];
     for( i=0;i<software_version_list.length;i++){
         txt = txt +"<option value="+software_version_list[i]+">"+software_version_list[i]+"</option>";
     }
@@ -3744,7 +3723,7 @@ function get_update_dev_list(){
     });
     return update;
 }
-
+*/
 /*
  Monitor point view function part
  */
@@ -4192,6 +4171,7 @@ function draw_point_detail_panel(){
     if(point_selected_device === null) return;
 
     var projname ="";
+    if(project_list === null) project_list = [];
     for(var j=0;j<project_list.length;j++){
         if(point_selected.ProjCode == project_list[j].id){
             projname = project_list[j].name;break;
@@ -4259,6 +4239,7 @@ function draw_point_detail_panel(){
 
     $("#Table_point_device").empty();
     txt ="<thead> <tr> <th>监控设备清单 </th> </tr> </thead> <tbody >";
+    if(point_selected_device === null) point_selected_device = [];
     for(var i=0;i<point_selected_device.length;i++){
         txt = txt + "<tr> <td>"+ point_selected_device[i].name+"</td> </tr>";
     }
@@ -4951,6 +4932,7 @@ function draw_dev_detail_panel(){
     $("#Table_device_sensor").empty();
     txt ="<thead> <tr> <th>传感器 </th><th>状态 </th> </tr> </thead> <tbody >";
     var i;
+    if(device_selected_sensor === null) device_selected_sensor = [];
 	for( i=0;i<device_selected_sensor.length;i++){
         var temp = "开启";
         if(device_selected_sensor[i].status == "false") temp = "关闭";
@@ -5101,6 +5083,7 @@ function submit_mod_dev_module(){
 
 function get_proj_name(id){
     var proj_name= null;
+    if(project_list === null) project_list = [];
     for(var i=0;i<project_list.length;i++){
         if(project_list[i].id == id){
             proj_name = project_list[i].name;
@@ -5111,6 +5094,7 @@ function get_proj_name(id){
 }
 function get_point_name(id){
     var point_name= null;
+    if(point_list === null) point_list = [];
     for(var i=0;i<point_list.length;i++){
         if(point_list[i].id == id){
             point_name = point_list[i].name;
@@ -5121,6 +5105,7 @@ function get_point_name(id){
 }
 function get_proj_option(id){
     txt = "";
+    if(project_list === null) project_list = [];
     for( var i=0; i<project_list.length;i++){
         if(project_list[i].id == id){
             txt = txt +"<option value="+project_list[i].id+" selected='selected'>"+project_list[i].name+"</option>";
@@ -5138,6 +5123,7 @@ function get_proj_point_option(ProjCode,select,select_value){
         return;
     }
     var txt ="";
+    if(point_list === null) point_list = [];
     for( var i=0; i<point_list.length;i++){
         if(point_list[i].ProjCode == ProjCode){
 
@@ -5181,6 +5167,34 @@ function get_monitor_list(){
             return;
         }
         monitor_map_list = result.ret;
+
+        //console.log(monitor_map_list);
+    });*/
+}
+function get_monitor_alarm_list(){
+    var map={
+        action:"MonitorAlarmList",
+        type:"query",
+        user:usr.id
+    };
+    //console.log(map);
+    var get_monitor_list_callback = function(result){
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        alarm_map_list = result.ret;
+    };
+    JQ_get(request_head,map,get_monitor_list_callback);
+    /*
+     jQuery.get(request_head, map, function (data) {
+     log(data);
+     var result=JSON.parse(data);
+     if(result.status == "false"){
+     show_expiredModule();
+     return;
+     }
+     monitor_map_list = result.ret;
 
         //console.log(monitor_map_list);
     });*/
@@ -5309,7 +5323,18 @@ function initializeMap(){
     map_MPMonitor.addControl(new BMap.NavigationControl());
     //map_MPMonitor.addControl(new BMap.ScaleControl());
     map_MPMonitor.enableScrollWheelZoom();
-    map_MPMonitor.centerAndZoom(usr.city,15);
+
+    //map_MPMonitor.centerAndZoom(new BMap.Point(Longitude,Latitude),15);
+
+    if(usr.city === "GPS"){
+        if(Longitude === null){
+            map_MPMonitor.centerAndZoom("beijing",15);
+        }else{
+            map_MPMonitor.centerAndZoom(new BMap.Point(Longitude,Latitude),15);
+        }
+    }else{
+        map_MPMonitor.centerAndZoom(usr.city,15);
+    }
     // hyj this will not be a problem because the bmap initialization will cost several seconds.
     window.setTimeout(addMarker, wait_time_long);
     //addMarker();
@@ -5321,6 +5346,7 @@ function initializeMap(){
 }
 function get_select_monitor(title){
     var temp = title.split(":");
+    if(monitor_map_list === null) monitor_map_list = [];
     for(var i=0;i<monitor_map_list.length;i++){
         if(monitor_map_list[i].StatCode == temp[0]){
             monitor_selected = monitor_map_list[i];
@@ -5350,6 +5376,7 @@ function addMarker(point){
 			if(monitor_map_handle == this) monitor_map_handle = null;
 		});
 	};
+    if(monitor_map_list === null) monitor_map_list = [];
     for(var i=0;i<monitor_map_list.length;i++){
         var t_point = new BMap.Point(parseFloat(monitor_map_list[i].Longitude),parseFloat(monitor_map_list[i].Latitude));
         var marker = new BMap.Marker(t_point, {icon: myIcon});
@@ -5559,6 +5586,7 @@ function show_monitor_page(page_number){
     txt = txt +"<tbody>";
 
     sequence = (page_number*table_row*2);
+    if(monitor_map_list === null) monitor_map_list = [];
     for(var i=0;i<(table_row*2);i++){
         if((sequence+i)<monitor_map_list.length){
             //console.log(sequence+i);
@@ -5936,6 +5964,7 @@ function query_audit_stability(){
 function build_key_history_proj_choice(){
     if(project_list === null) return;
     var txt ="";
+    if(project_list === null) project_list = [];
     for( i=0;i<project_list.length;i++){
         txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
     }
@@ -6544,12 +6573,26 @@ function initializeAlarmMap(){
     map_MPMonitor.addControl(new BMap.NavigationControl());
     //map_MPMonitor.addControl(new BMap.ScaleControl());
     map_MPMonitor.enableScrollWheelZoom();
-    map_MPMonitor.centerAndZoom(usr.city,15);
+    //map_MPMonitor.centerAndZoom(usr.city,15);
+    if(usr.city === "GPS"){
+        if(Longitude === null){
+            map_MPMonitor.centerAndZoom("beijing",15);
+        }else{
+            map_MPMonitor.centerAndZoom(new BMap.Point(Longitude,Latitude),15);
+        }
+    }else{
+        map_MPMonitor.centerAndZoom(usr.city,15);
+    }
     //HYJ this will not be a problem because bmap will cost
     window.setTimeout(alarm_addMarker, wait_time_long);
     window.setTimeout(build_alarm_tabs, wait_time_long);
     //alarm_addMarker();
     alarm_map_initialized=true;
+}
+function alarm_cycle(){
+    if(alarm_map_initialized === false) return;
+    get_monitor_alarm_list();
+    window.setTimeout(alarm_addMarker, wait_time_long);
 }
 function build_alarm_tabs(){
     if(alarm_type_list === null) return;
@@ -6649,6 +6692,7 @@ function unhide_all_chart(){
 }
 function get_select_alarm(title){
     var temp = title.split(":");
+    if(monitor_map_list === null) monitor_map_list = [];
     for(var i=0;i<monitor_map_list.length;i++){
         if(monitor_map_list[i].StatCode == temp[0]){
             alarm_selected = monitor_map_list[i];
@@ -6676,9 +6720,9 @@ function get_alarmpointinfo_on_map(){
 
 }
 function alarm_addMarker(point){
-    if(monitor_map_list === null)return;
+    if(alarm_map_list === null)return;
     // 创建图标对象
-    var myIcon = new BMap.Icon("./image/map-marker-ball-azure-small.png", new BMap.Size(32, 32),{
+    var myIcon = new BMap.Icon("./image/map-marker-ball-pink-small.png", new BMap.Size(32, 32),{
         anchor: new BMap.Size(16, 30)
     });
 	alarm_mark_click = function(){
@@ -6695,30 +6739,17 @@ function alarm_addMarker(point){
 			if(alarm_map_handle == this) alarm_map_handle = null;
 		});
 	};
-    for(var i=0;i<monitor_map_list.length;i++){
-        var t_point = new BMap.Point(parseFloat(monitor_map_list[i].Longitude),parseFloat(monitor_map_list[i].Latitude));
+    if(alarm_map_list === null) alarm_map_list = [];
+    for(var i=0;i<alarm_map_list.length;i++){
+        var t_point = new BMap.Point(parseFloat(alarm_map_list[i].Longitude),parseFloat(alarm_map_list[i].Latitude));
         var marker = new BMap.Marker(t_point, {icon: myIcon});
-        marker.setTitle(monitor_map_list[i].StatCode+":"+monitor_map_list[i].StatName);
+        marker.setTitle(alarm_map_list[i].StatCode+":"+alarm_map_list[i].StatName);
         map_MPMonitor.addOverlay(marker);
-		/*
-        marker.addEventListener("click", function(){
-            get_select_alarm(this.getTitle());
-            //console.log("Selected:"+alarm_selected.StatName);
-
-            var sContent = this.getTitle();
-            var infoWindow = new BMap.InfoWindow(sContent,{offset:new BMap.Size(0,-23)});
-            infoWindow.setWidth(400);
-            alarm_map_handle = infoWindow;
-            get_alarmpointinfo_on_map();
-            this.openInfoWindow(infoWindow);
-            infoWindow.addEventListener("close",function(){
-                if(alarm_map_handle == this) alarm_map_handle = null;
-            });
-        });*/
 		marker.addEventListener("click",alarm_mark_click);
     }
 
 }
+
 
 
 
@@ -6744,8 +6775,8 @@ function Data_export_Normal(title,tablename,condition,filter){
             show_expiredModule();
             return;
         }
-        ColumnName = result.ColumnName;
-        TableData = result.TableData;
+        ColumnName = result.ret.ColumnName;
+        TableData = result.ret.TableData;
         var txt = "<thead> <tr>";
 		var i;
         for( i=0;i<ColumnName.length;i++){
@@ -7056,6 +7087,7 @@ function get_device_sensor(DevCode){
 }
 function get_sensor_name(sensorid){
     var ret = "未知传感器";
+    if(sensor_list === null) sensor_list = [];
     for(var i=0;i<sensor_list.length;i++){
         if(sensorid == sensor_list[i].id){
             ret = sensor_list[i].nickname;
@@ -7072,6 +7104,7 @@ function show_sensor_module(){
     $("#SensorDevCode_Input").val(device_selected.DevCode);
     $("#SensorName_Input").val(get_sensor_name(select_sensor.id));
     $("#SensorStatus_choice").val(select_sensor.status);
+    if(select_sensor.para === null) select_sensor.para = [];
     if(select_sensor.para.length!==0){
         var txt = "";
 		var i;
@@ -7096,6 +7129,7 @@ function submit_sensor_module(){
         return;
     }
     var paramlist = [];//new Array();
+    if(select_sensor.para === null) select_sensor.para = [];
     for(var i=0;i<select_sensor.para.length;i++){
         var temp = {
             name : select_sensor.para[i].name,
@@ -7347,6 +7381,7 @@ function show_usr_msg_module(){
 function reflash_usr_img_table(){
     $("#UsrImgTable").empty();
     var txt = "<thead> <tr> <th> 已上传文件</th> </tr> </thead> <tbody >";
+    if(usr_img === null) usr_img = [];
     for(var i =0;i<usr_img.length;i++){
         txt = txt + "<tr> <td>"+ usr_img[i].name+"</td></tr>";
     }
@@ -7570,31 +7605,269 @@ function show_alarm_module(ifalarm,text,callback){
         $('#UserAlarm').on('hide.bs.modal',function(){ setTimeout(callback, 500);});
     }
 }
-function get_camera_and_video_web(statcode,ifcamera,ifvideo){
-    var body = {
-        StatCode:statcode
-    };
-    var map = {
-            action: "GetVideoCameraWeb",
-            body:body,
-            type:"mod",
-            user:usr.id
 
+function getLocation()
+{
+    console.log("正在获取位置！");
+    if (navigator.geolocation)
+    {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    }
+    else{
+        console.log("无法获得当前位置！");
+    }
+}
+function showPosition(position)
+{
+    console.log("Latitude: " + position.coords.latitude +
+        "Longitude: " + position.coords.longitude);
+    Latitude = position.coords.latitude;
+    Longitude = position.coords.longitude;
+}
+
+function parameter_initialize(){
+    parameter_initial = true;
+    if(project_list === null)get_project_list();
+    get_VersionInformation();
+    draw_parameter_page();
+    //get_version_list();
+    //window.setTimeout(draw_parameter_page, wait_time_middle);
+
+}
+function draw_parameter_page(){
+    $("#UpdateProj_choice").empty();
+    //$("#UpdateVersion_choice").empty();
+    var txt = "";
+    var i;
+    if(project_list === null) project_list = [];
+    for( i=0;i<project_list.length;i++){
+        txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
+    }
+    $("#UpdateProj_choice").append(txt);
+    get_ProjUpdateStrategy($("#UpdateProj_choice").val());
+    $("#UpdateProj_choice").change(function(){
+        get_ProjUpdateStrategy($(this).val());
+    });
+    $("#UpdateLineChange_button").on('click',function(){
+        click_ProjVersionStrategyChange_commit($("#UpdateProj_choice").val(),$("#UpdateLine_choice").val());
+    });
+    $("#FlashProjUpdatedetail_button").on('click',function(){
+        query_ProjUpdateStrategyList($("#UpdateProj_choice").val());
+    });
+    $("#ProjAutoUpdate_button").on('click',function(){
+        click_ProjUpdateStrategyChange_commit($("#UpdateProj_choice").val(),"true");
+    });
+    $("#ProjNotUpdate_button").on('click',function(){
+        click_ProjUpdateStrategyChange_commit($("#UpdateProj_choice").val(),"false");
+    });
+
+}
+function get_VersionInformation(){
+    var map={
+        action:"VersionInformation",
+        type:"query",
+        user:usr.id
     };
-    var move_camera_callback = function(result){
+    var get_VersionInformation_callback = function(result){
         var ret = result.status;
         if(ret == "true"){
-            if(ifcamera){
-                window.open(result.ret.camera,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-
+            var info = result.ret;
+            var text = "<dl ><dt>版本升级详细信息：</dt><p></p>";
+            for(var i=0;i<info.length;i++){
+                text = text+"<dd>"+info[i]+"</dd><p></p>";
             }
-            if(ifvideo){
-                window.open(result.ret.video,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-
-            }
+            text = text+"</dl>";
+            $("#Version_detail").empty();
+            $("#Version_detail").append(text);
         }else{
-            show_alarm_module(true,"请重新登录！"+result.msg,null);
+            setTimeout(function() {
+                show_alarm_module(true, "无法获取版本详细说明！" + result.msg, null);
+            },500);
         }
     };
-    JQ_get(request_head,map,move_camera_callback);
+    JQ_get(request_head,map,get_VersionInformation_callback);
+}
+function get_ProjUpdateStrategy(ProjCode){
+    var body={
+        ProjCode:ProjCode
+    };
+    var map={
+        action:"GetProjUpdateStrategy",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var get_ProjUpdateStrategy_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            var versionline = result.ret.VersionLine;
+            $("#UpdateLine_choice").val(versionline);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "无法获取项目处于版本线" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,get_ProjUpdateStrategy_callback);
+}
+function click_ProjVersionStrategyChange_commit(ProjCode,VersionLine){
+    var body={
+        ProjCode:ProjCode,
+        UpdateLine:VersionLine
+    };
+    var map={
+        action:"ProjVersionStrategyChange",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var ProjVersionStrategyChange_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "版本线更新成功！" , null);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "版本线更新失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,ProjVersionStrategyChange_callback);
+}
+function click_PointUpdateStrategyChange_commit(StatCode,ifupdate){
+    var body={
+        StatCode:StatCode,
+        AutoUpdate:ifupdate
+    };
+    var map={
+        action:"PointUpdateStrategyChange",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var PointUpdateStrategyChange_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "监测点自动更新设置成功！请手动刷新" , null);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "监测点自动更新设置失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,PointUpdateStrategyChange_callback);
+}
+function click_ProjUpdateStrategyChange_commit(ProjCode,ifupdate){
+    var body={
+        ProjCode:ProjCode,
+        AutoUpdate:ifupdate
+    };
+    var map={
+        action:"ProjUpdateStrategyChange",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var ProjUpdateStrategyChange_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "批量自动更新设置成功！请手动刷新" , null);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "批量自动更新设置失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,ProjUpdateStrategyChange_callback);
+}
+function query_ProjUpdateStrategyList(ProjCode){
+    var body={
+        ProjCode:ProjCode
+    };
+    var map={
+        action:"ProjUpdateStrategyList",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var ProjUpdateStrategyList_callback= function(result){
+        //log(data);
+        //var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var Last_update_date=(new Date()).Format("yyyy-MM-dd_hhmmss");
+        $("#UpdateFlashTime").empty();
+        $("#UpdateFlashTime").append("最后刷新时间："+Last_update_date);
+        var ColumnName = result.ret.ColumnName;
+        var TableData = result.ret.TableData;
+        var txt = "<thead> <tr><th></th>";
+        var i;
+        for( i=0;i<ColumnName.length;i++){
+            txt = txt +"<th>"+ColumnName[i]+"</th>";
+        }
+        //txt = txt +"<th></th></tr></thead>";
+        txt = txt +"</tr></thead>";
+        txt = txt +"<tbody>";
+        for( i=0;i<TableData.length;i++){
+            txt = txt +"<tr>";
+            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
+            var icontag = "glyphicon glyphicon-upload";
+            if(TableData[i][1] ==="Y"){
+                icontag = "glyphicon glyphicon-remove-sign";
+            }
+            txt = txt +"<td><button type='button' class='btn btn-default update_change_btn' StateCode='"+TableData[i][0]+"' AutoUpdate= '"+TableData[i][1]+"'><em class='"+icontag+"' aria-hidden='true' ></em></button></td>";
+            //console.log("StateCode="+TableData[i][0]);
+            for(var j=0;j<TableData[i].length;j++){
+                txt = txt +"<td>"+TableData[i][j]+"</td>";
+            }
+            txt = txt +"</tr>";
+        }
+        txt = txt+"</tbody>";
+        $("#ProjUpdateDetailTable").empty();
+        $("#ProjUpdateDetailTable").append(txt);
+        if(if_update_table_initialize) $("#ProjUpdateDetailTable").DataTable().destroy();
+
+        //console.log(monitor_map_list);
+
+        var show_table  = $("#ProjUpdateDetailTable").DataTable( {
+            //dom: 'T<"clear">lfrtip',
+            "scrollY": false,
+            "scrollCollapse": true,
+
+            "scrollX": true,
+            "searching": false,
+            "autoWidth": true,
+            "lengthChange":false,
+            //bSort: false,
+            //aoColumns: [ { sWidth: "45%" }, { sWidth: "45%" }, { sWidth: "10%", bSearchable: false, bSortable: false } ],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '导出到excel',
+                    filename: "MonitorData"+Last_update_date
+                }
+            ]
+
+        } );
+        if_update_table_initialize = true;
+        update_change_btn_click = function(){
+            var statcode = $(this).attr('StateCode');
+            var ifup = $(this).attr('AutoUpdate');
+            var ifupdate = "true";
+            if(ifup ==="Y"){
+                ifupdate = "false";
+            }
+            click_PointUpdateStrategyChange_commit(statcode,ifupdate);
+        };
+        $(".update_change_btn").on('click',update_change_btn_click);
+    };
+    JQ_get(request_head,map,ProjUpdateStrategyList_callback);
 }
