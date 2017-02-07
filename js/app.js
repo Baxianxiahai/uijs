@@ -8019,3 +8019,28 @@ function query_warning_handle_list(){
     JQ_get(request_head,map,GetWarningHandleListTable_callback);
 
 }
+function get_camera_and_video_web(statcode,ifcamera,ifvideo){
+    var body = {
+        StatCode:statcode
+    };
+    var map = {
+        action: "GetVideoCameraWeb",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+    var move_camera_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            if(ifcamera){
+                window.open(result.ret.camera,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+            }
+            if(ifvideo) {
+                window.open(result.ret.video, '监控录像', "height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+            }
+        }else {
+            show_alarm_module(true, "请重新登录！" + result.msg, null);
+        }
+    };
+    JQ_get(request_head,map,move_camera_callback);
+}
