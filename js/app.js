@@ -1451,6 +1451,9 @@ function desktop(){
 
     write_title("欢迎","请选择您需要的功能");
     $("#Desktop").css("display","block");
+
+
+    mp_monitor();
 }
 
 
