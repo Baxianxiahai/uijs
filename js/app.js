@@ -138,6 +138,7 @@ var Monitor_table_total=0;
 //warning Static table Control
 var Monitor_Static_table_initialized = true;
 var  if_static_table_initialize = false;
+
 //key history table Control
 var Key_History_table_initialized = false;
 var  if_key_history_table_initialize = false;
@@ -159,8 +160,7 @@ var if_Warning_Handle_table_initialize = false;
 var export_table_name = null;
 var if_table_initialize = false;
 
-var Audit_Stability_table_initialized= false;
-var if_audit_stability_table_initialized =false;
+
 //Sensor Control
 var sensor_list=null;
 var select_sensor_devcode=null;
@@ -449,6 +449,7 @@ function get_user_information(){
             get_sensor_list();
             get_camera_unit();
             get_project_list();
+			get_proj_point_list();
             hide_menu();
         }
 	};
@@ -765,7 +766,12 @@ $(document).ready(function() {
         touchcookie();
         key_history();
     });
-
+    $("#CableCheck").on('click',function(){
+        CURRENT_URL = "CableCheck";
+        active_menu("CableCheck");
+        touchcookie();
+        CABLE_Check();
+    });
 
 
     //user view buttons
@@ -1145,15 +1151,6 @@ $(document).ready(function() {
         video_windows(vcraddress);
         //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
     });
-    $("#VideoWindow").on('click',function() {
-        if(monitor_selected === null) return;
-        get_camera_and_video_web(monitor_selected.StatCode,false,true);
-    });
-    $("#CameraWindow").on('click',function() {
-        if(monitor_selected === null) return;
-        get_camera_and_video_web(monitor_selected.StatCode,true,false);
-        //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
-    });
 	$("#ModuleVCRshow").on('click',function() {
         var vcraddress = $("#ModuleVCRStatus_choice").val();
 		//console.log("vcraddress="+vcraddress);
@@ -1167,9 +1164,7 @@ $(document).ready(function() {
     $("#WarningHandleTableFlash").on('click',function() {
         query_warning_handle_list();
     });
-    $("#AuditStabilityFlash").on('click',function() {
-        query_audit_stability();
-    });
+
 
     $("#menu_user_profile").on('click',function() {
         touchcookie();
@@ -1331,6 +1326,10 @@ $(document).ready(function() {
         click_key_grant_commit($(this).attr("KeyId"),$(this).attr("UserId"));
     });
 
+	$("#AlarmHandleUpdateCommit").on('click',function(){
+		AlarmHandleUpdateCommit_button_commit();
+    });
+
     //alert($(window).height());
     //alert($(window).width());
     clear_window();
@@ -1378,11 +1377,12 @@ function key_manage(){
     clear_window();
     write_title("钥匙管理","根据您的权限对项目组进行添加/删除/修改等操作");
     $("#KeyManageView").css("display","block");
-    if(!key_initial){ key_intialize(0);}
+    //if(!key_initial){ key_intialize(0);}
+    key_intialize(0);
 }
 function proj_manage(){
     clear_window();
-    write_title("项目组管理","根据您的权限对项目进行添加/删除/修改等操作");
+    write_title("项目管理","根据您的权限对项目进行添加/删除/修改等操作");
     $("#ProjManageView").css("display","block");
     proj_intialize(0);
 }
@@ -1445,15 +1445,13 @@ function warning_handle(){
     $("#WarningHandleView").css("display","block");
     write_title("告警处理","请查看报表");
     query_warning_handle_list();
+    //$("#Undefined").css("display","block");
 }
 function desktop(){
     clear_window();
 
     write_title("欢迎","请选择您需要的功能");
     $("#Desktop").css("display","block");
-
-
-    mp_monitor();
 }
 
 
@@ -1494,9 +1492,8 @@ function Audit_Target(){
 }
 function Audit_Stability(){
     clear_window();
-    write_title("稳定性统计","请手工刷新");
-    $("#AuditStabilityView").css("display","block");
-    query_audit_stability();
+    write_title("施工中","");
+    $("#Undefined").css("display","block");
 }
 function Audit_Availability(){
     clear_window();
@@ -1571,6 +1568,11 @@ function WEB_Conf(){
     write_title("施工中","");
     $("#Undefined").css("display","block");
 }
+function CABLE_Check(){
+    clear_window();
+    write_title("纤芯管理","");
+    $("#Undefined").css("display","block");
+}
 /*
 function KEY_Manage(){
     clear_window();
@@ -1609,7 +1611,6 @@ function clear_window(){
     $("#KeyManageView").css("display","none");
     $("#KeyHistoryView").css("display","none");
     $("#KeyAuthView").css("display","none");
-    $("#AuditStabilityView").css("display","none");
 }
 
 
@@ -2041,7 +2042,7 @@ function draw_user_table(data){
 function Initialize_user_detail(){
 
     draw_user_detail_panel();
-    //get_user_key(user_selected.id);
+    get_user_key(user_selected.id);
     get_user_proj(user_selected.id);
     //window.setTimeout(draw_user_detail_panel, wait_time_short);
 }
@@ -2071,7 +2072,7 @@ function clear_user_detail_panel(){
     $("#Label_user_detail").empty();
     $("#Label_user_detail").append(txt);
     $("#Table_user_authed").empty();
-    //$("#Table_user_key").empty();
+    $("#Table_user_key").empty();
 }
 function draw_user_detail_panel(){
     $("#Label_user_detail").empty();
@@ -2592,7 +2593,6 @@ function pg_intialize(start) {
     pg_table = null;
     get_pg_table(start, table_row * 5);
     clear_pg_detail_panel();
-    get_project_list();
     //window.setTimeout(draw_pg_table_head, wait_time_middle);
 }
 function draw_pg_table_head(){
@@ -2972,6 +2972,535 @@ function submit_mod_pg_module(){
     });
     modify_pg(pg,proj);
 }
+
+/**
+ * Key view function part
+ */
+function get_key_table(start,length){
+    var body={
+        startseq: start,
+        length:length
+    };
+    var map={
+        action:"KeyTable",
+        type:"query",
+        body: body,
+        user:usr.id
+    };
+	var get_key_table_callback = function(result){
+		if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_table = result.ret.keytable;
+
+        key_start = parseInt(result.ret.start);
+        key_total = parseInt(result.ret.total);
+        //HYJ add for server slow
+        draw_key_table_head();
+	};
+	JQ_get(request_head,map,get_key_table_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_table = result.ret;
+
+        key_start = parseInt(result.start);
+        key_total = parseInt(result.total);
+        //HYJ add for server slow
+        draw_key_table_head();
+    });*/
+}
+function del_key(id){
+    var body={
+        KeyCode: id
+    };
+    var map={
+        action:"KeyDel",
+        type:"mod",
+        body: body,
+        user:usr.id
+    };
+	var del_key_callback = function(result){
+		var ret = result.status;
+        if(ret == "true"){
+            del_key_flash= function(){
+                clear_key_detail_panel();
+                key_intialize(0);
+            };
+            setTimeout(function() {
+                show_alarm_module(false, "删除成功！", del_key_flash);
+            },500);
+
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "删除失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,del_key_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"删除成功！");
+            clear_key_detail_panel();
+            key_intialize(0);
+        }else{
+            show_alarm_module(true,"删除失败！"+result.msg);
+        }
+    });*/
+    $("#KeyDelAlarm").modal('hide');
+
+}
+function new_key(key){
+	var body={
+        KeyCode: key.KeyCode,
+        KeyName:key.KeyName,
+        KeyProj:key.KeyProj,
+        KeyType:key.KeyType,
+        HardwareCode:key.HardwareCode,
+        Memo:key.Memo
+    };
+    var map={
+        action:"KeyNew",
+        type:"mod",
+        body: body,
+        user:usr.id
+    };
+	var new_key_callback = function(result){
+		var ret = result.status;
+        if(ret == "true"){
+
+            $('#newKeyModal').modal('hide');
+            new_key_flash = function(){
+                clear_key_detail_panel();
+                key_intialize(0);
+            };
+
+            setTimeout(function() {
+                show_alarm_module(false, "创建成功！", new_key_flash);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "创建失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,new_key_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"创建成功！");
+            $('#newKeyModal').modal('hide');
+            clear_key_detail_panel();
+            key_intialize(0);
+        }else{
+            show_alarm_module(true,"创建失败！"+result.msg);
+        }
+    });*/
+}
+function modify_key(key){
+    var body={
+        KeyCode: key.KeyCode,
+        KeyName:key.KeyName,
+        KeyProj:key.KeyProj,
+        KeyType:key.KeyType,
+        HardwareCode:key.HardwareCode,
+        Memo:key.Memo
+    };
+    var map={
+        action:"KeyMod",
+        type:"mod",
+        body: body,
+        user:usr.id
+    };
+	var modify_key_callback = function(result){
+		var ret = result.status;
+        if(ret == "true"){
+            $('#newKeyModal').modal('hide');
+            mod_key_flash=function(){
+
+                clear_key_detail_panel();
+                key_intialize(0);
+            };
+            setTimeout(function() {
+                show_alarm_module(false, "修改成功！", mod_key_flash);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "修改失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,modify_key_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"修改成功！");
+            $('#newKeyModal').modal('hide');
+            clear_key_detail_panel();
+            key_intialize(0);
+        }else{
+            show_alarm_module(true,"修改失败！"+result.msg);
+        }
+    });*/
+}
+
+
+
+function get_key_auth(keyid){
+    var body={
+        KeyCode:keyid
+    };
+    var map={
+        action:"KeyAuthlist",
+        type:"query",
+        body: body,
+        user:usr.id
+    };
+	var get_key_auth_callback = function(result){
+		if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_selected_auth = result.ret;
+        //hyj add for server slow.
+		draw_key_detail_auth_table();
+	};
+	JQ_get(request_head,map,get_key_auth_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_selected_auth = result.ret;
+        //hyj add for server slow.
+		draw_key_detail_auth_table();
+    });*/
+}
+function key_intialize(start) {
+
+    if(project_list === null)get_project_list();
+    key_initial = true;
+    key_table = null;
+    get_key_table(start, table_row * 5);
+    clear_key_detail_panel();
+}
+function draw_key_table_head(){
+    if(null === key_table)return;
+    var page_number = Math.ceil((key_table.length)/table_row);
+
+    $("#Key_Page_control").empty();
+    var txt = "<li>"+
+        "<a href='#' id='key_page_prev'>Prev</a>"+
+        "</li>";
+    var page_start_number = Math.ceil(key_start/table_row);
+    var i;
+    for(i=0;i<page_number;i++){
+        txt=txt+ "<li>"+
+            "<a href='#' id='key_page_"+i+"'>"+(i+page_start_number+1)+"</a>"+
+            "</li>";
+    }
+    txt=txt+"<li>"+
+        "<a href='#' id='key_page_next'>Next</a>"+
+        "</li>";
+    $("#Key_Page_control").append(txt);
+    table_head="<thead>"+
+        "<tr>"+"<th>编号</th> <th>名称 </th> <th>归口部门 </th> <th>使用人 </th> <th>种类 </th>";
+    table_head=table_head+"</tr></thread>";
+    key_page_click = function(){
+        draw_key_table($(this));
+    };
+    for(i=0;i<page_number;i++){
+        $("#key_page_"+i).on('click',key_page_click);
+    }
+    if(key_start<=0){
+        $("#key_page_prev").css("display","none");
+    }else{
+        $("#key_page_prev").css("display","block");
+        $("#key_page_prev").on('click',function(){
+            var new_start = key_start-(table_row*5);
+            if(new_start<0) new_start =0;
+            key_intialize(new_start);
+        });
+    }
+
+    if((key_start+(table_row*5))>=key_total){
+        $("#key_page_next").css("display","none");
+    }else{
+        $("#key_page_next").css("display","block");
+        $("#key_page_next").on('click',function(){
+            key_intialize(key_start+(table_row*5));
+        });
+    }
+
+    draw_key_table($("#key_page_0"));
+}
+function key_type_transfer(keyType){
+    if(keyType == "R") return "射频卡";
+    if(keyType == "B") return "蓝牙";
+    if(keyType == "U") return "用户名";
+    if(keyType == "I") return "身份证";
+    if(keyType == "W") return "微信号";
+    if(keyType == "P") return "电话号码";
+    return "未知类型";
+
+}
+function draw_key_table(data){
+
+    $("#Table_key").empty();
+    if(null === key_table) return;
+    var sequence = (parseInt(data.html())-1)*table_row-key_start;
+    var txt = table_head;
+    txt = txt +"<tbody>";
+    var i;
+    for(i=0;i<table_row;i++){
+        if((sequence+i)<key_table.length){
+            var keyusername = key_table[sequence+i].KeyUserName;
+            if(keyusername == "none")keyusername = "部门收管";
+            if(0!==i%2){
+                txt =txt+ "<tr class='success  li_menu' id='key_table_cell"+i+"' KeyCode='"+key_table[sequence+i].KeyCode+"'>";
+            }else{ txt =txt+ "<tr class=' li_menu' id='key_table_cell"+i+"' KeyCode='"+key_table[sequence+i].KeyCode+"'>";}
+            txt = txt +"<td>" + key_table[sequence+i].KeyCode+"</td>"+"<td>" + key_table[sequence+i].KeyName+"</td>"+"<td>" + key_table[sequence+i].KeyProjName+"</td>"+"<td>" + keyusername+"</td>"+"<td>" + key_type_transfer(key_table[sequence+i].KeyType)+"</td>";
+            
+
+            txt = txt +"</tr>";
+        }else{
+            if(0!==i%2){
+                txt =txt+ "<tr class='success' id='key_table_cell"+i+"' KeyCode='null'>";
+            }else{ txt =txt+ "<tr  id='key_table_cell"+i+"' KeyCode='null'>";}
+            txt = txt +"<td>--</td>"+"<td>--</td>"+"<td>--</td>"+"<td>--</td>"+"<td>--</td>";
+            txt = txt +"</tr>";
+        }
+
+    }
+    txt = txt+"</tbody>";
+
+    $("#Table_key").append(txt);
+    key_table_cell_click = function(){
+        if($(this).attr("KeyCode") !="null"){
+            for(var i=0;i<key_table.length;i++){
+                if($(this).attr("KeyCode") == key_table[i].KeyCode){
+                    key_selected =key_table[i];
+                    break;
+                }
+            }
+
+            Initialize_key_detail();
+            touchcookie();
+        }
+    };
+    for(i=0;i<table_row;i++){
+        $("#key_table_cell"+i).on('click',key_table_cell_click);
+    }
+    touchcookie();
+}
+function Initialize_key_detail(){
+
+    draw_key_detail_panel();
+    get_key_auth(key_selected.KeyCode);
+}
+function clear_key_detail_panel(){
+    key_selected = null;
+
+    var txt = "<p></p><p></p>"+
+        "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt >钥匙编号：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "<dt >钥匙名称：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "</dl>"+
+        "</div>"+
+        "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt>归口部门：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "<dt>使用人：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "</dl>"+
+        "</div>"+
+        "<div class='col-md-12 col-sm-12 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt>钥匙种类：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "<dt>硬件码：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "<dt>备注：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "</dl>"+
+        "</div>";
+
+
+    $("#Label_key_detail").empty();
+    $("#Label_key_detail").append(txt);
+    $("#Table_key_auth").empty();
+}
+function draw_key_detail_panel(){
+    $("#Label_key_detail").empty();
+    var keyusername = key_selected.KeyUserName;
+    if(keyusername == "none")keyusername = "部门收管";
+    var txt = "<p></p><p></p>"+
+        "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt >钥匙编号：</dt><dd>"+key_selected.KeyCode+"</dd>"+
+        "<dt >钥匙名称：</dt><dd>"+key_selected.KeyName+"</dd>"+
+        "</dl>"+
+        "</div>"+
+        "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt>归口部门：</dt><dd>"+key_selected.KeyProjName+"</dd>"+
+        "<dt>使用人：</dt><dd>"+keyusername+"</dd>"+
+        "</dl>"+
+        "</div>"+
+        "<div class='col-md-12 col-sm-12 col-xs-12 column'>"+
+        "<dl >"+
+        "<dt>钥匙种类：</dt><dd>"+key_type_transfer(key_selected.KeyType)+"</dd>"+
+        "<dt>硬件码：</dt><dd>"+key_selected.HardwareCode+"</dd>"+
+        "<dt>备注：</dt><dd>"+key_selected.Memo+"</dd>"+
+        "</dl>"+
+        "</div>";
+    $("#Label_key_detail").append(txt);
+
+
+
+}
+function draw_key_detail_auth_table(){
+	$("#Table_key_auth").empty();
+	txt ="<thead> <tr> <th>授权设备 </th> <th>授权方式 </th></tr> </thead> <tbody >";
+    if(key_selected_auth === null) key_selected_auth = [];
+	for(var i=0;i<key_selected_auth.length;i++){
+		txt = txt + "<tr> <td>"+ key_selected_auth[i].DomainName+"</td> <td>"+ key_selected_auth[i].AuthWay+"</td></tr>";
+	}
+	txt = txt+ "</tbody>";
+    $("#Table_key_auth").append(txt);
+}
+function build_key_module_proj_choice(){
+    if(project_list === null) return;
+    var txt ="";
+    for( i=0;i<project_list.length;i++){
+        txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
+    }
+    $("#NewKeyProj_choice").append(txt);
+}
+function show_new_key_module(){
+
+    $("#newKeyModalLabel").text("创建新钥匙");
+    build_key_module_proj_choice();
+    key_module_status = true;
+
+    $("#NewKeyName_Input").val("");
+    $("#NewKeyHardwareID_Input").val("");
+    $("#NewKeyMemo_Input").val("");
+    $("#NewKeyName_Input").attr("placeholder","钥匙名称");
+    $("#NewKeyHardwareID_Input").attr("placeholder","硬件码");
+    $("#NewKeyMemo_Input").attr("placeholder","备注");
+
+
+
+
+    modal_middle($('#newKeyModal'));
+
+    $('#newKeyModal').modal('show');
+
+}
+function submit_new_key_module(){
+    var new_KeyCode = "";
+	var new_KeyName = $("#NewKeyName_Input").val();
+	var new_KeyType = $("#NewKeyType_choice").val();
+	var new_KeyProj = $("#NewKeyProj_choice").val();
+    var new_KeyHardwareCode = $("#NewKeyHardwareID_Input").val();
+    var new_KeyMemo = $("#NewKeyMemo_Input").val();
+
+    if(new_KeyName === null || new_KeyName === ""){
+        $("#NewKeyName_Input").attr("placeholder","钥匙名称不能为空");
+        $("#NewKeyName_Input").focus();
+        return;
+    }
+    if(new_KeyHardwareCode === null || new_KeyHardwareCode === ""){
+        $("#NewKeyHardwareID_Input").attr("placeholder","硬件码不能为空");
+        $("#NewKeyHardwareID_Input").focus();
+        return;
+    }
+    
+
+    var key = {
+        KeyCode:new_KeyCode,
+        KeyName:new_KeyName,
+        KeyType:new_KeyType,
+        KeyProj:new_KeyProj,
+        HardwareCode:new_KeyHardwareCode,
+        Memo:new_KeyMemo
+    };
+
+    new_key(key);
+}
+function show_mod_key_module(key){
+    build_key_module_proj_choice();
+    $("#newkeyModalLabel").text("钥匙修改");
+    key_module_status = false;
+
+    $("#NewKeyName_Input").val(key.KeyName);
+    $("#NewKeyHardwareID_Input").val(key.HardwareCode);
+    $("#NewKeyMemo_Input").val(key.Memo);
+    $("#NewKeyName_Input").attr("placeholder","钥匙名称");
+    $("#NewKeyHardwareID_Input").attr("placeholder","硬件码");
+    $("#NewKeyMemo_Input").attr("placeholder","备注");
+    $("#NewKeyType_choice").val(key.KeyType);
+    $("#NewKeyProj_choice").val(key.KeyProj);
+
+    modal_middle($('#newKeyModal'));
+
+    $('#newKeyModal').modal('show');
+}
+function submit_mod_key_module(){
+    var new_KeyCode = key_selected.KeyCode;
+	var new_KeyName = $("#NewKeyName_Input").val();
+	var new_KeyType = $("#NewKeyType_choice").val();
+	var new_KeyProj = $("#NewKeyProj_choice").val();
+    var new_KeyHardwareCode = $("#NewKeyHardwareID_Input").val();
+    var new_KeyMemo = $("#NewKeyMemo_Input").val();
+
+    if(new_KeyName === null || new_KeyName === ""){
+        $("#NewKeyName_Input").attr("placeholder","钥匙名称不能为空");
+        $("#NewKeyName_Input").focus();
+        return;
+    }
+    if(new_KeyHardwareCode === null || new_KeyHardwareCode === ""){
+        $("#NewKeyHardwareID_Input").attr("placeholder","硬件码不能为空");
+        $("#NewKeyHardwareID_Input").focus();
+        return;
+    }
+    
+
+    var key = {
+        KeyCode:new_KeyCode,
+        KeyName:new_KeyName,
+        KeyType:new_KeyType,
+        KeyProj:new_KeyProj,
+        HardwareCode:new_KeyHardwareCode,
+        Memo:new_KeyMemo
+    };
+    modify_key(key);
+}
+
+
+
+
+
+
+
+
 /*
  Project view function part
  */
@@ -3359,7 +3888,7 @@ function draw_proj_table(data){
 function Initialize_proj_detail(){
     draw_proj_detail_panel();
     get_proj_point(project_selected.ProjCode);
-    //get_proj_key(project_selected.ProjCode);
+    get_proj_key(project_selected.ProjCode);
     //window.setTimeout(draw_proj_detail_panel, wait_time_short);
 }
 function clear_proj_detail_panel(){
@@ -3382,7 +3911,7 @@ function clear_proj_detail_panel(){
         "<dl >"+
         "<dt>单位：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt>地址：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
-        "<dt>开工日期：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        "<dt>创建日期：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt>备注：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "</dl>"+
         "</div>";
@@ -3404,7 +3933,7 @@ function clear_proj_detail_panel(){
     $("#Label_proj_detail").empty();
     $("#Label_proj_detail").append(txt);
     $("#Table_proj_point").empty();
-    //$("#Table_proj_key").empty();
+    $("#Table_proj_key").empty();
 }
 function draw_proj_detail_panel(){
     $("#Label_proj_detail").empty();
@@ -3427,7 +3956,7 @@ function draw_proj_detail_panel(){
         "<dl >"+
         "<dt>单位：</dt><dd>"+project_selected.Department+"</dd>"+
         "<dt>地址：</dt><dd>"+project_selected.Address+"</dd>"+
-        "<dt>开工日期：</dt><dd>"+project_selected.ProStartTime+"</dd>"+
+        "<dt>创建日期：</dt><dd>"+project_selected.ProStartTime+"</dd>"+
         "<dt>备注：</dt><dd>"+project_selected.Stage+"</dd>"+
         "</dl>"+
         "</div>";
@@ -3461,7 +3990,9 @@ function draw_proj_detail_key_table(){
     txt ="<thead> <tr> <th>钥匙名称 </th> <th>所有人 </th></tr> </thead> <tbody >";
     if(project_selected_key === null) project_selected_key = [];
     for(var i=0;i<project_selected_key.length;i++){
-        txt = txt + "<tr id='"+project_selected_key[i].id+"' class='keyrow'> <td>"+ project_selected_key[i].name+"</td> <td>"+ project_selected_key[i].username+"</td></tr>";
+        var keyusername = project_selected_key[i].username;
+        if(keyusername == "none")keyusername = "部门收管";
+        txt = txt + "<tr id='"+project_selected_key[i].id+"' class='keyrow'> <td>"+ project_selected_key[i].name+"</td> <td>"+ keyusername+"</td></tr>";
     }
     txt = txt+ "</tbody>";
     $("#Table_proj_key").append(txt);
@@ -4117,14 +4648,14 @@ function clear_point_detail_panel(){
         "<dl >"+
         "<dt >站点编号：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt >负责人：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
-        "<dt >开工日期：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        //"<dt >开工日期：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
         "<dl >"+
         "<dt>站点名称：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt>电话：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
-        "<dt >面积：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        //"<dt >面积：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-12 col-sm-12 col-xs-12 column'>"+
@@ -4191,14 +4722,14 @@ function draw_point_detail_panel(){
         "<dl >"+
         "<dt >站点编号：</dt><dd>"+point_selected.StatCode+"</dd>"+
         "<dt >负责人：</dt><dd>"+point_selected.ChargeMan+"</dd>"+
-        "<dt >开工日期：</dt><dd>"+point_selected.ProStartTime+"</dd>"+
+        //"<dt >开工日期：</dt><dd>"+point_selected.ProStartTime+"</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
         "<dl >"+
         "<dt>站点名称：</dt><dd>"+point_selected.StatName+"</dd>"+
         "<dt>电话：</dt><dd>"+point_selected.Telephone+"</dd>"+
-        "<dt >面积：</dt><dd>"+point_selected.Square+"</dd>"+
+        //"<dt >面积：</dt><dd>"+point_selected.Square+"</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-12 col-sm-12 col-xs-12 column'>"+
@@ -4272,8 +4803,8 @@ function show_new_point_module(){
     $("#PointAddress_Input").val("");
     $("#PointCountry_Input").val("");
     $("#PointStreet_Input").val("");
-    $("#PointSquare_Input").val("");
-    $("#PointProStartTime_Input").val("");
+    //$("#PointSquare_Input").val("");
+    //$("#PointProStartTime_Input").val("");
     $("#PointStage_Input").val("");
     $("#PointProjCode_choice").empty();
     $("#PointProjCode_choice").append(get_proj_option());
@@ -4288,8 +4819,8 @@ function show_new_point_module(){
     $("#PointAddress_Input").attr("placeholder","地址");
     $("#PointCountry_Input").attr("placeholder","区县");
     $("#PointStreet_Input").attr("placeholder","街镇");
-    $("#PointSquare_Input").attr("placeholder","施工面积(平方米)");
-    $("#PointProStartTime_Input").attr("placeholder","开工时间");
+    //$("#PointSquare_Input").attr("placeholder","施工面积(平方米)");
+    //$("#PointProStartTime_Input").attr("placeholder","开工时间");
 
 
     modal_middle($('#newPointModal'));
@@ -4309,8 +4840,8 @@ function submit_new_point_module(){
     var new_PointAddress = $("#PointAddress_Input").val();
     var new_PointCountry = $("#PointCountry_Input").val();
     var new_PointStreet = $("#PointStreet_Input").val();
-    var new_PointSquare = $("#PointSquare_Input").val();
-    var new_PointProStartTime = $("#PointProStartTime_Input").val();
+    var new_PointSquare = "0";//$("#PointSquare_Input").val();
+    var new_PointProStartTime = "1999-01-01";//$("#PointProStartTime_Input").val();
     var new_PointStage = $("#PointStage_Input").val();
 
     if(new_PointStatCode === null || new_PointStatCode === ""){
@@ -4368,6 +4899,7 @@ function submit_new_point_module(){
         $("#PointStreet_Input").focus();
         return;
     }
+    /*
     if(new_PointSquare === null || new_PointSquare === ""){
         $("#PointSquare_Input").attr("placeholder","施工面积不能为空");
         $("#PointSquare_Input").focus();
@@ -4377,7 +4909,7 @@ function submit_new_point_module(){
         $("#PointProStartTime_Input").attr("placeholder","开工时间不能为空");
         $("#PointProStartTime_Input").focus();
         return;
-    }
+    }*/
 
     var point = {
         StatCode: new_PointStatCode,
@@ -4425,8 +4957,8 @@ function show_mod_point_module(point){
     $("#PointCountry_Input").val(point.Country);
     $("#PointStreet_Input").val(point.Street);
     $("#PointSquare_Input").val(point.Square);
-    $("#PointProStartTime_Input").val(point.ProStartTime);
-    $("#PointStage_Input").val(point.Stage);
+    //$("#PointProStartTime_Input").val(point.ProStartTime);
+    //$("#PointStage_Input").val(point.Stage);
     $("#PointProjCode_choice").empty();
     $("#PointProjCode_choice").append(get_proj_option());
     $("#PointProjCode_choice").val(point.ProjCode);
@@ -4440,8 +4972,8 @@ function show_mod_point_module(point){
     $("#PointAddress_Input").attr("placeholder","地址");
     $("#PointCountry_Input").attr("placeholder","区县");
     $("#PointStreet_Input").attr("placeholder","街镇");
-    $("#PointSquare_Input").attr("placeholder","施工面积(平方米)");
-    $("#PointProStartTime_Input").attr("placeholder","开工时间");
+    //$("#PointSquare_Input").attr("placeholder","施工面积(平方米)");
+    //$("#PointProStartTime_Input").attr("placeholder","开工时间");
 
     modal_middle($('#newPointModal'));
 
@@ -4459,8 +4991,8 @@ function submit_mod_point_module(){
     var new_PointAddress = $("#PointAddress_Input").val();
     var new_PointCountry = $("#PointCountry_Input").val();
     var new_PointStreet = $("#PointStreet_Input").val();
-    var new_PointSquare = $("#PointSquare_Input").val();
-    var new_PointProStartTime = $("#PointProStartTime_Input").val();
+    var new_PointSquare ="0";//$("#PointSquare_Input").val();
+    var new_PointProStartTime = "1999-01-01";//$("#PointProStartTime_Input").val();
     var new_PointStage = $("#PointStage_Input").val();
 
 
@@ -4857,13 +5389,13 @@ function clear_dev_detail_panel(){
         "<dt >项目：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt >安装时间：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt >MAC地址：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
-        "<dt >实际结束时间：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        //"<dt >实际结束时间：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
         "<dl >"+
         "<dt>站点：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
-        "<dt>预计结束时间：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
+        //"<dt>预计结束时间：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt >IP地址：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "<dt >设备是否启动：</dt><dd>&nbsp&nbsp&nbsp&nbsp</dd>"+
         "</dl>"+
@@ -4908,13 +5440,13 @@ function draw_dev_detail_panel(){
         "<dt >项目：</dt><dd>"+get_proj_name(device_selected.ProjCode)+"</dd>"+
         "<dt >安装时间：</dt><dd>"+device_selected.StartTime+"</dd>"+
         "<dt >MAC地址：</dt><dd>"+device_selected.MAC+"</dd>"+
-        "<dt >实际结束时间：</dt><dd>"+device_selected.EndTime+"</dd>"+
+        //"<dt >实际结束时间：</dt><dd>"+device_selected.EndTime+"</dd>"+
         "</dl>"+
         "</div>"+
         "<div class='col-md-6 col-sm-6 col-xs-12 column'>"+
         "<dl >"+
         "<dt>站点：</dt><dd>"+get_point_name(device_selected.StatCode)+"</dd>"+
-        "<dt>预计结束时间：</dt><dd>"+device_selected.PreEndTime+"</dd>"+
+        //"<dt>预计结束时间：</dt><dd>"+device_selected.PreEndTime+"</dd>"+
         "<dt >IP地址：</dt><dd>"+device_selected.IP+"</dd>"+
         "<dt >设备是否启动：</dt><dd>"+type+"</dd>"+
         "</dl>"+
@@ -4978,15 +5510,15 @@ function show_new_dev_module(){
     //console.log($("#DevProjCode_choice").val());
     get_proj_point_option($("#DevProjCode_choice").val(),$("#DevStatCode_choice"),"");
     $("#DevStartTime_Input").val("");
-    $("#DevPreEndTime_Input").val("");
-    $("#DevEndTime_Input").val("");
+    //$("#DevPreEndTime_Input").val("");
+    //$("#DevEndTime_Input").val("");
     $("#DevDevStatus_choice").val("true");
     $("#DevVideoURL_Input").val("");
 
     $("#DevDevCode_Input").attr("placeholder","设备编号");
     $("#DevStartTime_Input").attr("placeholder","安装时间");
-    $("#DevPreEndTime_Input").attr("placeholder","预计结束时间");
-    $("#DevEndTime_Input").attr("placeholder","实际结束时间");
+   //$("#DevPreEndTime_Input").attr("placeholder","预计结束时间");
+    //$("#DevEndTime_Input").attr("placeholder","实际结束时间");
 
 
     modal_middle($('#newDevModal'));
@@ -4998,8 +5530,8 @@ function submit_new_dev_module(){
     var new_DevDevCode = $("#DevDevCode_Input").val();
     var new_DevStatCode =$("#DevStatCode_choice").val();
     var new_DevStartTime =$("#DevStartTime_Input").val();
-    var new_DevPreEndTime =$("#DevPreEndTime_Input").val();
-    var new_DevEndTime =$("#DevEndTime_Input").val();
+    var new_DevPreEndTime ="1999-01-01";//$("#DevPreEndTime_Input").val();
+    var new_DevEndTime ="1999-01-01";//$("#DevEndTime_Input").val();
     var new_DevDevStatus =$("#DevDevStatus_choice").val();
     var new_DevVideoURL =$("#DevVideoURL_Input").val();
 
@@ -5051,16 +5583,16 @@ function show_mod_dev_module(device){
 
     $("#DevStatCode_choice").val(device.StatCode);
     $("#DevStartTime_Input").val(device.StartTime);
-    $("#DevPreEndTime_Input").val(device.PreEndTime);
-    $("#DevEndTime_Input").val(device.EndTime);
+    //$("#DevPreEndTime_Input").val(device.PreEndTime);
+    //$("#DevEndTime_Input").val(device.EndTime);
     if(device.DevStatus) $("#DevDevStatus_choice").val("true");
     else $("#DevDevStatus_choice").val("false");
     $("#DevVideoURL_Input").val(device.VideoURL);
 
     $("#DevDevCode_Input").attr("placeholder","设备编号");
     $("#DevStartTime_Input").attr("placeholder","安装时间");
-    $("#DevPreEndTime_Input").attr("placeholder","预计结束时间");
-    $("#DevEndTime_Input").attr("placeholder","实际结束时间");
+    //$("#DevPreEndTime_Input").attr("placeholder","预计结束时间");
+    //$("#DevEndTime_Input").attr("placeholder","实际结束时间");
 
     modal_middle($('#newDevModal'));
 
@@ -5070,8 +5602,8 @@ function submit_mod_dev_module(){
     var new_DevDevCode = $("#DevDevCode_Input").val();
     var new_DevStatCode =$("#DevStatCode_choice").val();
     var new_DevStartTime =$("#DevStartTime_Input").val();
-    var new_DevPreEndTime =$("#DevPreEndTime_Input").val();
-    var new_DevEndTime =$("#DevEndTime_Input").val();
+    var new_DevPreEndTime ="1999-01-01";//$("#DevPreEndTime_Input").val();
+    var new_DevEndTime ="1999-01-01";//$("#DevEndTime_Input").val();
     var new_DevDevStatus =$("#DevDevStatus_choice").val();
     var new_DevVideoURL =$("#DevVideoURL_Input").val();
 
@@ -5205,111 +5737,111 @@ function get_monitor_alarm_list(){
      }
      monitor_map_list = result.ret;
 
-        //console.log(monitor_map_list);
-    });*/
+     //console.log(monitor_map_list);
+     });*/
 }
 function get_monitor_warning_on_map(){
     if(monitor_selected === null||monitor_map_handle===null){
         return;
-    }else {
-        var body = {StatCode: monitor_selected.StatCode};
-        var map = {
-            action: "DevAlarm",
-            body: body,
-            type: "query",
-            user: usr.id
+    }else{
+		var body={StatCode: monitor_selected.StatCode};
+        var map={
+            action:"DevAlarm",
+            body:body,
+            type:"query",
+            user:usr.id
         };
-        var get_monitor_warning_on_map_callback = function (result) {
-            if (result.status == "false") {
+		var get_monitor_warning_on_map_callback = function(result){
+			if(result.status == "false"){
                 show_expiredModule();
                 return;
             }
             var ret = result.ret.alarmlist;
             var txt = "";
-            if (ret == "false") {
-                txt = "<Strong>获取告警失败</Strong>";
-            } else {
-                txt = "<div id ='Element_card_floating' align='center' ><p style='font-size:14px;font-weight: bold' >" + "站点名称：" + monitor_selected.StatName + "</p>" +
+            if(ret == "false"){
+                txt= "<Strong>获取告警失败</Strong>";
+            }else{
+                txt = "<div id ='Element_card_floating' align='center' ><p style='font-size:14px;font-weight: bold' >"+"站点名称："+monitor_selected.StatName+"</p>"+
                     "<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" +
-                    "<div style='font-size:10px; min-height: 350px; min-width:420px' >";
+                    "<div style='font-size:10px; min-height: 350px; min-width:420px' >" ;
                 txt = txt + " <div class='col-md-6 column'>";
-                for (var i = 0; i < ret.length; i++) {
+                for(var i=0;i<ret.length;i++){
                     var nickname = ret[i].AlarmEName;
-                    txt = txt + "<img src='./svg/icon/" + ret[i].AlarmEName + ".svg' style='width:36px;hight:36px'></img><label style='max-width: 150px;min-width: 150px'>&nbsp&nbsp&nbsp&nbsp" + ret[i].AlarmName + ":";
+                    txt = txt + "<img src='./svg/icon/"+ret[i].AlarmEName+".svg' style='width:36px;hight:36px'></img><label style='max-width: 150px;min-width: 150px'>&nbsp&nbsp&nbsp&nbsp"+ret[i].AlarmName+":";
                     var value = ret[i].AlarmValue;//parseInt(ret[i].AlarmValue);
                     var warning = ret[i].WarningTarget;
 
-                    if (warning == "true") {
-                        txt = txt + "<Strong style='color:red'>" + value + "</Strong>" + ret[i].AlarmUnit + "</label>";
-                    } else {
-                        txt = txt + "<Strong>" + value + "</Strong>" + ret[i].AlarmUnit + "</label>";
+                    if(warning == "true"){
+                        txt = txt +"<Strong style='color:red'>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
+                    }else{
+                        txt = txt +"<Strong>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
                     }
                     //txt = txt +"<p></p>";
-                    txt = txt + "<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>";
-                    if (i == ret.length / 2 - 1) {
-                        txt = txt + "</div><div class='col-md-6 column'>";
+                    txt = txt +"<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" ;
+                    if(i==ret.length/2-1){
+                        txt = txt +"</div><div class='col-md-6 column'>";
                     }
                 }
-                txt = txt + "</div></div>";
+                txt = txt+"</div></div>";
             }
-            if (monitor_map_handle !== null) {
+            if(monitor_map_handle!==null){
                 monitor_map_handle.setContent(txt);
 
             }
             $("#VideoStatCode_Input").val(monitor_selected.StatName);
             video_selection_change();
-        };
-        JQ_get(request_head, map, get_monitor_warning_on_map_callback);
-        /*
-         jQuery.get(request_head, map, function (data) {
-         log(data);
-         var result=JSON.parse(data);
-         if(result.status == "false"){
-         show_expiredModule();
-         return;
-         }
-         var ret = result.ret;
-         var txt = "";
-         if(ret == "false"){
-         txt= "<Strong>获取告警失败</Strong>";
-         }else{
-         txt = "<div id ='Element_card_floating' align='center' ><p style='font-size:14px;font-weight: bold' >"+"站点名称："+monitor_selected.StatName+"</p>"+
-         "<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" +
-         "<div style='font-size:10px; min-height: 350px; min-width:420px' >" ;
-         txt = txt + " <div class='col-md-6 column'>";
-         for(var i=0;i<ret.length;i++){
-         var nickname = ret[i].AlarmEName;
-         txt = txt + "<img src='./svg/icon/"+ret[i].AlarmEName+".svg' style='width:36px;hight:36px'></img><label style='max-width: 150px;min-width: 150px'>&nbsp&nbsp&nbsp&nbsp"+ret[i].AlarmName+":";
-         var value = parseInt(ret[i].AlarmValue);
-         var warning = ret[i].WarningTarget;
+		};
+		JQ_get(request_head,map,get_monitor_warning_on_map_callback);
+		/*
+        jQuery.get(request_head, map, function (data) {
+            log(data);
+            var result=JSON.parse(data);
+            if(result.status == "false"){
+                show_expiredModule();
+                return;
+            }
+            var ret = result.ret;
+            var txt = "";
+            if(ret == "false"){
+                txt= "<Strong>获取告警失败</Strong>";
+            }else{
+                txt = "<div id ='Element_card_floating' align='center' ><p style='font-size:14px;font-weight: bold' >"+"站点名称："+monitor_selected.StatName+"</p>"+
+                    "<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" +
+                    "<div style='font-size:10px; min-height: 350px; min-width:420px' >" ;
+                txt = txt + " <div class='col-md-6 column'>";
+                for(var i=0;i<ret.length;i++){
+                    var nickname = ret[i].AlarmEName;
+                    txt = txt + "<img src='./svg/icon/"+ret[i].AlarmEName+".svg' style='width:36px;hight:36px'></img><label style='max-width: 150px;min-width: 150px'>&nbsp&nbsp&nbsp&nbsp"+ret[i].AlarmName+":";
+                    var value = parseInt(ret[i].AlarmValue);
+                    var warning = ret[i].WarningTarget;
 
-         if(warning == "true"){
-         txt = txt +"<Strong style='color:red'>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
-         }else{
-         txt = txt +"<Strong>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
-         }
-         //txt = txt +"<p></p>";
-         txt = txt +"<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" ;
-         if(i==ret.length/2-1){
-         txt = txt +"</div><div class='col-md-6 column'>";
-         }
-         }
-         txt = txt+"</div></div>";
-         }
-         if(monitor_map_handle!==null){
-         monitor_map_handle.setContent(txt);
+                    if(warning == "true"){
+                        txt = txt +"<Strong style='color:red'>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
+                    }else{
+                        txt = txt +"<Strong>"+value+"</Strong>"+ret[i].AlarmUnit+"</label>";
+                    }
+                    //txt = txt +"<p></p>";
+                    txt = txt +"<HR style='FILTER: alpha(opacity=100,finishopacity=0,style=3)' width='80%' color=#987cb9 SIZE=3/>" ;
+                    if(i==ret.length/2-1){
+                        txt = txt +"</div><div class='col-md-6 column'>";
+                    }
+                }
+                txt = txt+"</div></div>";
+            }
+            if(monitor_map_handle!==null){
+                monitor_map_handle.setContent(txt);
 
-         }
-         $("#VideoStatCode_Input").val(monitor_selected.StatName);
-         video_selection_change();
-
-         //$("#VCRStatus_choice").empty();
-         //txt = "";
-         //for(var i =0;i<result.vcr.length;i++){
-         //    txt = txt +"<option value='"+result.vcr[i].vcraddress+"'>"+result.vcr[i].vcrname+"</option>"
-         //}
-         //$("#VCRStatus_choice").append(txt);
-         });*/
+            }
+            $("#VideoStatCode_Input").val(monitor_selected.StatName);
+            video_selection_change();
+            
+            //$("#VCRStatus_choice").empty();
+            //txt = "";
+            //for(var i =0;i<result.vcr.length;i++){
+            //    txt = txt +"<option value='"+result.vcr[i].vcraddress+"'>"+result.vcr[i].vcrname+"</option>"
+            //}
+            //$("#VCRStatus_choice").append(txt);
+        });*/
     }
 
 }
@@ -5413,7 +5945,7 @@ function addMarker(point){
 function video_selection_change(){
     //console.log($("#Video_query_Input").val());
     if(monitor_selected!==null && $("#Video_query_Input").val()!==""){
-        //get_video(monitor_selected.StatCode,$("#Video_query_Input").val(),$("#VideoHour_choice").val());
+        get_video(monitor_selected.StatCode,$("#Video_query_Input").val(),$("#VideoHour_choice").val());
     }
 }
 function get_video(StatCode,date,hour){
@@ -5741,7 +6273,7 @@ function query_static_warning(){
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
             //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
-            txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
+            txt = txt +"<td><button type='button' class='btn btn-default lock_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-lock ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
             //console.log("StateCode="+TableData[i][0]);
             for(var j=0;j<TableData[i].length;j++){
                 txt = txt +"<td>"+TableData[i][j]+"</td>";
@@ -5778,7 +6310,6 @@ function query_static_warning(){
 
         } );
         if_static_table_initialize = true;
-        /*
         video_btn_click = function(){
             var statcode = $(this).attr('StateCode');
             //console.log("StateCode_click="+statcode);
@@ -5792,24 +6323,13 @@ function query_static_warning(){
             if(statcode!==undefined ){
                 show_openlockmodule(statcode);
             }
-        };*/
-        video_btn_click = function(){
-            var statcode = $(this).attr('StateCode');
-            //console.log("StateCode_click="+statcode);
-            if(statcode!==undefined ){
-                get_camera_and_video_web(statcode,false,true);
-            }
-        };
-        camera_btn_click = function(){
-            var statcode = $(this).attr('StateCode');
-            //console.log("StateCode_click="+statcode);
-            if(statcode!==undefined ){
-                get_camera_and_video_web(statcode,true,false);
-            }
         };
         $(".video_btn").on('click',video_btn_click);
-        $(".camera_btn").on('click',camera_btn_click);
-        //$(".lock_btn").on('click',lock_btn_click);
+        $(".lock_btn").on('click',lock_btn_click);
+        $("#MonitorQueryTable_paginate").on('click',function(){
+            $(".video_btn").on('click',video_btn_click);
+            $(".lock_btn").on('click',lock_btn_click);
+        });
     };
     JQ_get(request_head,map,GetStaticMonitorTable_callback);
     /*
@@ -5893,80 +6413,7 @@ function query_static_warning(){
     });*/
 }
 
-function query_audit_stability(){
-    //if(Audit_Stability_table_initialized !== true) return;
-    var map={
-        action:"GetAuditStabilityTable",
-        type:"query",
-        user:usr.id
-    };
-    var GetAuditStabilityTable_callback= function(result){
-        //log(data);
-        //var result=JSON.parse(data);
-        if(result.status == "false"){
-            show_expiredModule();
-            return;
-        }
-        var Last_update_date=(new Date()).Format("yyyy-MM-dd_hhmmss");
-        $("#AuditStabilityFlashTime").empty();
-        $("#AuditStabilityFlashTime").append("最后刷新时间："+Last_update_date);
-        var ColumnName = result.ret.ColumnName;
-        var TableData = result.ret.TableData;
-        //var txt = "<thead> <tr><th></th><th></th>";
-        var txt = "<thead> <tr>";
-        var i;
-        for( i=0;i<ColumnName.length;i++){
-            txt = txt +"<th>"+ColumnName[i]+"</th>";
-        }
-        //txt = txt +"<th></th></tr></thead>";
-        txt = txt +"</tr></thead>";
-        txt = txt +"<tbody>";
-        for( i=0;i<TableData.length;i++){
-            txt = txt +"<tr>";
-            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
-            //txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
-            //console.log("StateCode="+TableData[i][0]);
-            for(var j=0;j<TableData[i].length;j++){
-                txt = txt +"<td>"+TableData[i][j]+"</td>";
-            }
-            //txt = txt + "<td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' >视频</button></td>";
-            txt = txt +"</tr>";
-        }
-        txt = txt+"</tbody>";
-        $("#AuditStabilityTable").empty();
-        $("#AuditStabilityTable").append(txt);
-        if(if_audit_stability_table_initialized) $("#AuditStabilityTable").DataTable().destroy();
 
-        //console.log(monitor_map_list);
-
-        var show_table  = $("#AuditStabilityTable").DataTable( {
-            //dom: 'T<"clear">lfrtip',
-            "scrollY": false,
-            "scrollCollapse": true,
-
-            "scrollX": true,
-            "searching": false,
-            "autoWidth": true,
-            "lengthChange":false,
-            //bSort: false,
-            //aoColumns: [ { sWidth: "45%" }, { sWidth: "45%" }, { sWidth: "10%", bSearchable: false, bSortable: false } ],
-            dom: 'Bfrtip',
-            buttons: [
-                {
-                    extend: 'excel',
-                    text: '导出到excel',
-                    filename: "MonitorData"+Last_update_date
-                }
-            ]
-
-        } );
-        if_audit_stability_table_initialized = true;
-
-        //$(".lock_btn").on('click',lock_btn_click);
-    };
-    JQ_get(request_head,map,GetAuditStabilityTable_callback);
-
-}
 
 
 //Open Lock History query
@@ -7133,6 +7580,9 @@ function show_sensor_module(){
     $('#SensorModal').modal('show');
 }
 
+
+
+
 function submit_sensor_module(){
     if(null === select_sensor) {
         return;
@@ -7558,6 +8008,431 @@ function show_cameraModule(Statcode){
     $('#VideoSelectionModule').modal('show') ;
     //document.querySelector('.cycle-circle').classList.toggle('open');
 }
+function show_openlockmodule(statcode){
+    $("#UnlockConfirmBtn").attr("StateCode",statcode);
+    $("#UnlockConfirmModalContent").empty();
+    $("#UnlockConfirmModalContent").append("<strong>请确认：</strong>是否要打开站点["+statcode+"]的智能锁！按确认继续。");
+
+    modal_middle($('#UnlockConfirm'));
+    $('#UnlockConfirm').modal('show') ;
+}
+
+function openlock(statcode){
+	var body={StatCode:statcode};
+    var map = {
+        action: "OpenLock",
+        body:body,
+	    type:"mod",
+	    user:usr.id
+    };
+	var openlock_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            var auth = result.auth;
+            if(auth == "true"){
+                show_alarm_module(false,"已向下位机发送开锁请求，请稍后刷新！",null);
+            }else{
+                show_alarm_module(true,"无效授权！"+result.msg,null);
+            }
+
+        }else{
+            show_alarm_module(true,"开锁请求失败，请重新登录！"+result.msg,null);
+        }
+	};
+	JQ_get(request_head,map,openlock_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            var auth = result.auth;
+            if(auth == "true"){
+                show_alarm_module(false,"已向下位机发送开锁请求，请稍后刷新！");
+            }else{
+                show_alarm_module(true,"无效授权！"+result.msg);
+            }
+
+        }else{
+            show_alarm_module(true,"开锁请求失败，请重新登录！"+result.msg);
+        }
+    });*/
+}
+//Key auth view
+function get_proj_key_list(){
+    var map={
+        action:"ProjKeyList",
+		type:"query",
+		user:usr.id
+    };
+	var get_proj_key_list_callback = function(result){
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_list = result.ret;
+	};
+	JQ_get(request_head,map,get_proj_key_list_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        key_list = result.ret;
+
+    });*/
+}
+function get_proj_user_list(){
+    var map={
+        action:"ProjUserList",
+		type:"query",
+	    user:usr.id
+    };
+	var get_proj_user_list_callback = function(result){
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        proj_user_list = result.ret;
+	};
+	JQ_get(request_head,map,get_proj_user_list_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        proj_user_list = result.ret;
+
+    });*/
+}
+function build_key_auth_proj_choice(){
+    if(project_list === null) return;
+    var txt ="";
+    if(project_list === null) project_list = [];
+    for( i=0;i<project_list.length;i++){
+        txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
+    }
+    $("#KeyAuthProj_choice").append(txt);
+    $("#KeyUserProj_choice").append(txt);
+	update_key_auth_proj_stat_choice($("#KeyAuthProj_choice").val(),$("#KeyAuthProj_choice").find("option:selected").text());
+	update_key_auth_proj_key_choice($("#KeyUserProj_choice").val());
+	update_key_auth_proj_user_choice($("#KeyUserProj_choice").val());
+    $("#KeyAuthProj_choice").change(function(){
+        update_key_auth_proj_stat_choice($(this).val(),$(this).find("option:selected").text());
+    });
+    $("#KeyUserProj_choice").change(function(){
+        update_key_auth_proj_key_choice($(this).val());
+    });
+}
+function update_key_auth_proj_stat_choice(projcode,projname){
+	$("#KeyAuthPoint_choice").empty();
+    var txt = "";
+    if(point_list === null) point_list = [];
+    for( i=0;i<point_list.length;i++){
+		if(point_list[i].ProjCode == projcode){
+        txt = txt +"<option value="+point_list[i].id+">"+point_list[i].name+"</option>";}
+    }
+	txt = "<option value="+projcode+">"+projname+":全项目</option>"+txt;
+
+	$("#KeyAuthPoint_choice").append(txt);
+}
+function update_key_auth_proj_key_choice(projcode){
+	$("#KeyUserKey_choice").empty();
+    var txt = "";
+    if(key_list === null) key_list = [];
+    for( i=0;i<key_list.length;i++){
+		if(key_list[i].ProjCode == projcode){
+            var keyusername = key_list[i].username;
+            if(keyusername == "none")keyusername = "部门收管";
+        txt = txt +"<option value="+key_list[i].id+">"+key_list[i].name+":"+keyusername+"</option>";}
+    }
+	$("#KeyUserKey_choice").append(txt);
+}
+function update_new_key_auth_key_choice(projcode){
+	$("#NewKeyAuthKey_choice").empty();
+    var txt = "";
+    if(key_list === null) key_list = [];
+    for( i=0;i<key_list.length;i++){
+		if(key_list[i].ProjCode == projcode){
+            var keyusername = key_list[i].username;
+            if(keyusername == "none")keyusername = "部门收管";
+        txt = txt +"<option value="+key_list[i].id+">"+key_list[i].name+":"+keyusername+"</option>";}
+    }
+	$("#NewKeyAuthKey_choice").append(txt);
+}
+function update_key_auth_proj_user_choice(projcode){
+	$("#KeyUserUser_choice").empty();
+    var txt = "";
+    if(proj_user_list === null) proj_user_list = [];
+    for( i=0;i<proj_user_list.length;i++){
+		if(proj_user_list[i].ProjCode == projcode){
+        txt = txt +"<option value="+proj_user_list[i].id+">"+proj_user_list[i].name+"</option>";}
+    }
+	txt = "<option value='none'>部门收管</option>"+txt;
+
+	$("#KeyUserUser_choice").append(txt);
+}
+
+function key_auth_initialize(){
+    //if(Key_auth_initialized === false){
+        //if(project_list === null||point_list === null||key_list === null||proj_user_list === null) {
+            get_project_list();
+            get_proj_point_list();
+
+            get_proj_key_list();
+			get_proj_user_list();
+            window.setTimeout(build_key_auth_proj_choice, wait_time_middle);
+        //}else{
+            //build_key_auth_proj_choice();
+       // }
+       // Key_auth_initialized = true;
+
+   // }
+}
+
+function get_domain_auth_list(DomainCode){
+	if(DomainCode === "") return;
+	var body={
+		DomainCode:DomainCode
+	};
+    var map={
+        action:"DomainAuthlist",
+        body:body,
+		type:"query",
+		user:usr.id
+    };
+	var get_domain_auth_list_callback = function(result){
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var domain_auth_list = result.ret;
+        if(domain_auth_list === null) domain_auth_list = [];
+        var txt = "<thead><tr><th></th><th>编号</th><th>钥匙</th><th>用户</th><th>授权条件</th></tr></thead><tbody>";
+        $("#Table_point_key_auth").empty();
+        for(var i=0;i<domain_auth_list.length;i++){
+            var keyusername = domain_auth_list[i].UserName;
+            if(keyusername == "none")keyusername = "部门收管";
+            txt= txt+"<tr> <td><button type='button' class='btn btn-default Auth_del_btn' AuthId='"+domain_auth_list[i].AuthId+"' ><em class='glyphicon glyphicon-trash ' aria-hidden='true' ></em></button></td>";
+            txt = txt +"<td>"+domain_auth_list[i].AuthId+"</td><td>"+domain_auth_list[i].KeyName+"</td><td>"+keyusername+"</td><td>"+domain_auth_list[i].AuthWay+"</td></tr>";
+        }
+        txt = txt+"</tbody>";
+        $("#Table_point_key_auth").append(txt);
+
+		$(".Auth_del_btn").on('click',function(){
+			touchcookie();
+			show_auth_delete_module($(this).attr("AuthId"));
+		});
+	};
+	JQ_get(request_head,map,get_domain_auth_list_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var domain_auth_list = result.ret;
+        var txt = "<thead><tr><th></th><th>编号</th><th>钥匙</th><th>用户</th><th>授权条件</th></tr></thead><tbody>";
+        $("#Table_point_key_auth").empty();
+        for(var i=0;i<domain_auth_list.length;i++){
+            txt= txt+"<tr> <td><button type='button' class='btn btn-default Auth_del_btn' AuthId='"+domain_auth_list[i].AuthId+"' ><em class='glyphicon glyphicon-trash ' aria-hidden='true' ></em></button></td>";
+            txt = txt +"<td>"+domain_auth_list[i].AuthId+"</td><td>"+domain_auth_list[i].KeyName+"</td><td>"+domain_auth_list[i].UserName+"</td><td>"+domain_auth_list[i].AuthWay+"</td></tr>";
+        }
+        txt = txt+"</tbody>";
+        $("#Table_point_key_auth").append(txt);
+
+		$(".Auth_del_btn").on('click',function(){
+			touchcookie();
+			show_auth_delete_module($(this).attr("AuthId"));
+		});
+
+    });*/
+}
+
+function show_auth_delete_module(authid){
+	$("#delKeyAuthCommit").attr("AuthId",authid);
+	$("#KeyAuthDelAlertModalLabel").text("确认删除 授权"+authid);
+    modal_middle($('#KeyAuthDelAlarm'));
+
+    $('#KeyAuthDelAlarm').modal('show');
+}
+
+function key_auth_delete(authid){
+	if(authid==="")return;
+	var body={AuthId:authid};
+	var map={
+        action:"KeyAuthDel",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+	var key_auth_delete_callback = function(result){
+        		var ret = result.status;
+        if(ret == "true"){
+
+            setTimeout(function() {
+                show_alarm_module(false, "删除成功！", null);
+            },500);
+			get_domain_auth_list($("#KeyAuthPoint_choice").val());
+        }else{
+
+            setTimeout(function() {
+                show_alarm_module(true, "修改失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,key_auth_delete_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+		var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"删除成功！");
+			get_domain_auth_list($("#KeyAuthPoint_choice").val());
+        }else{
+            show_alarm_module(true,"修改失败！"+result.msg);
+        }
+        
+
+    });*/
+}
+function show_auth_new_module(projcode,domainid,domainname){
+	$("#newKeyAuthCommit").attr("DomainId",domainid);
+	$("#NewKeyAuthDomain_Input").val(domainname);
+	update_new_key_auth_key_choice(projcode);
+	$("NewKeyAuthEndTime_Input").val("");
+
+    modal_middle($('#newKeyAuthModal'));
+
+    $('#newKeyAuthModal').modal('show');
+}
+function new_key_auth(auth){
+    var map={
+        action:"KeyAuthNew",
+        body:auth,
+        type:"mod",
+        user:usr.id
+    };
+	var new_key_auth_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false,"新建成功！",null);
+                get_domain_auth_list($("#KeyAuthPoint_choice").val());
+
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "新建失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,new_key_auth_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"新建成功！");
+            get_domain_auth_list($("#KeyAuthPoint_choice").val());
+        }else{
+            show_alarm_module(true,"新建失败！"+result.msg);
+        }
+
+    });*/
+}
+function click_new_key_auch_commit(){
+    var DomainId= $("#newKeyAuthCommit").attr("DomainId");
+    var KeyId=$("#NewKeyAuthKey_choice").val();
+    var authway = $("#NewKeyAuthEndTime_Input").val();
+    if(authway === "") authway = "always";
+    var map = {
+        DomainId: DomainId,
+        KeyId:KeyId,
+        Authway:authway
+    };
+    $('#newKeyAuthModal').modal('hide');
+    new_key_auth(map);
+}
+function check_key_auth_date(date){
+    if(date ==="" )return date;
+    else{
+        var d = new Date(date.replace(/-/g,"/"));
+		if(d.getdate == "Invalid Date"){
+			return "";
+		}
+		var today = new Date();
+		if(d.getTime()<today.getTime()){
+			return "";
+		}
+		return d.Format("yyyy-MM-dd");
+    }
+}
+function show_key_grant_module(keyid,userid,oldname,newname){
+	$("#KeyGrantCommit").attr("KeyId",keyid);
+	$("#KeyGrantCommit").attr("UserId",userid);
+	$("#KeyGrantAlertModalLabel").empty();
+    $("#KeyGrantAlertModalLabel").append("确定转移 "+oldname+"->"+newname);
+
+    modal_middle($('#KeyGrantAlarm'));
+
+    $('#KeyGrantAlarm').modal('show');
+}
+function click_key_grant_commit(keyid,userid){
+	var body={
+		KeyCode:keyid,
+		UserId:userid
+	};
+
+	var map={
+        action:"KeyGrant",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+	var click_key_grant_commit_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+
+            setTimeout(function() {
+                show_alarm_module(false, "变更成功！", null);
+                get_domain_auth_list($("#KeyAuthPoint_choice").val());
+                get_proj_key_list();
+                window.setTimeout(build_key_auth_proj_choice, wait_time_middle);
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "变更失败！" + result.msg, null);
+            },500);
+        }
+	};
+	JQ_get(request_head,map,click_key_grant_commit_callback);
+	/*
+    jQuery.get(request_head, map, function (data) {
+        log(data);
+        var result=JSON.parse(data);
+        var ret = result.status;
+        if(ret == "true"){
+            show_alarm_module(false,"变更成功！");
+            get_domain_auth_list($("#KeyAuthPoint_choice").val());
+			get_proj_key_list();
+            window.setTimeout(build_key_auth_proj_choice, wait_time_middle);
+        }else{
+            show_alarm_module(true,"变更失败！"+result.msg);
+        }
+
+    });*/
+}
 
 function JQ_get(url,request,callback){
     if(request.user!="null"){
@@ -7928,6 +8803,9 @@ function query_ProjUpdateStrategyList(ProjCode){
             click_PointUpdateStrategyChange_commit(statcode,ifupdate,$(this));
         };
         $(".update_change_btn").on('click',update_change_btn_click);
+        $("#ProjUpdateDetailTable_paginate").on('click',function(){
+            $(".update_change_btn").on('click',update_change_btn_click);
+        });
     };
     JQ_get(request_head,map,ProjUpdateStrategyList_callback);
 }
@@ -7953,7 +8831,7 @@ function query_warning_handle_list(){
         var ColumnName = result.ret.ColumnName;
         var TableData = result.ret.TableData;
         //var txt = "<thead> <tr><th></th><th></th>";
-        var txt = "<thead> <tr>";
+        var txt = "<thead> <tr><th></th>";
         var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
@@ -7963,7 +8841,12 @@ function query_warning_handle_list(){
         txt = txt +"<tbody>";
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
-            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
+			if(TableData[i][1] == "N"){
+				txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][0]+"'>处理</a> </li></ul></td>";
+			}else{
+				txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_close_btn' StatCode='"+TableData[i][0]+"'>关闭</a> </li></ul></td>";
+            
+			}
             //txt = txt +"<td><button type='button' class='btn btn-default lock_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-lock ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
             //console.log("StateCode="+TableData[i][0]);
             for(var j=0;j<TableData[i].length;j++){
@@ -7981,13 +8864,14 @@ function query_warning_handle_list(){
 
         var show_table  = $("#WarningHandleQueryTable").DataTable( {
             //dom: 'T<"clear">lfrtip',
-            "scrollY": false,
+            "scrollY": true,
             "scrollCollapse": true,
 
             "scrollX": true,
             "searching": false,
             "autoWidth": true,
             "lengthChange":false,
+            //"paging":false,
             //bSort: false,
             //aoColumns: [ { sWidth: "45%" }, { sWidth: "45%" }, { sWidth: "10%", bSearchable: false, bSortable: false } ],
             dom: 'Bfrtip',
@@ -8018,32 +8902,86 @@ function query_warning_handle_list(){
 
         } );
         if_Warning_Handle_table_initialize = true;
+		alarm_action_btn_click = function(){
+            var statcode = $(this).attr('StatCode');
+            $("#AlarmHandleUpdateCommit").attr("StatCode",statcode);
+			var alarm_statname = get_point_name(statcode);
+			$("#AlarmStatName_Input").val(alarm_statname);
+            modal_middle($('#AlarmHandleProcess'));
+			$('#AlarmHandleProcess').modal('show');
+        };
+        $(".alarm_action_btn").on('click',alarm_action_btn_click);
+		alarm_close_btn_click = function(){
+            var statcode = $(this).attr('StatCode');
+			handle_Alarm_close(statcode);
+        };
+        $(".alarm_close_btn").on('click',alarm_close_btn_click);
+
+        $("#WarningHandleQueryTable_paginate").on('click',function(){
+            $(".alarm_action_btn").on('click',alarm_action_btn_click);
+            $(".alarm_close_btn").on('click',alarm_close_btn_click);
+        });
     };
     JQ_get(request_head,map,GetWarningHandleListTable_callback);
 
 }
-function get_camera_and_video_web(statcode,ifcamera,ifvideo){
-    var body = {
-        StatCode:statcode
+function handle_Alarm_process(StatCode,Mobile,Action){
+    var body={
+        StatCode:StatCode,
+        Mobile:Mobile,
+        Action:Action
     };
-    var map = {
-        action: "GetVideoCameraWeb",
+    var map={
+        action:"AlarmHandle",
         body:body,
         type:"mod",
         user:usr.id
     };
-    var move_camera_callback = function(result){
+    var HandleAlarmProcess_callback = function(result){
         var ret = result.status;
         if(ret == "true"){
-            if(ifcamera){
-                window.open(result.ret.camera,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-            }
-            if(ifvideo) {
-                window.open(result.ret.video, '监控录像', "height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-            }
-        }else {
-            show_alarm_module(true, "请重新登录！" + result.msg, null);
+            setTimeout(function() {
+                show_alarm_module(false, "工单下发成功" , null);
+                query_warning_handle_list();
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "工单下发失败" + result.msg, null);
+            },500);
         }
     };
-    JQ_get(request_head,map,move_camera_callback);
+    JQ_get(request_head,map,HandleAlarmProcess_callback);
+}
+function handle_Alarm_close(StatCode){
+    var body={
+        StatCode:StatCode
+    };
+    var map={
+        action:"AlarmClose",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+    var HandleAlarmClose_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "告警关闭成功" , null);
+                query_warning_handle_list();
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "告警关闭失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,HandleAlarmClose_callback);
+}
+function AlarmHandleUpdateCommit_button_commit(){
+	var statcode = $("#AlarmHandleUpdateCommit").attr("StatCode");
+	var mobile = $("#AlarmHandleMobile_Input").val();
+	var action = $("#AlarmHandleAction_Input").val();
+	if(mobile===""||action ==="") return;
+	handle_Alarm_process(statcode,mobile,action);
+	$('#AlarmHandleProcess').modal('hide');
 }
