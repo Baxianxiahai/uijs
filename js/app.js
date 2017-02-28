@@ -325,6 +325,19 @@ $(document).ready(function() {
             mouseWheel:{ preventDefault: true }
         });
     }
+
+    $(".camerazoom").ionRangeSlider({
+        min: 0,
+        max: 10,
+        grid: true,
+        force_edges: true,
+        onFinish:function(data){
+            var statcode = $("#VideoModuleStatCode_Input").val();
+            var vorh = "z";
+            var value = data.from;
+            move_camera(statcode,vorh,value);
+        }
+    });
 });
 function write_title(title,sub_titile){
     $("#page_title").empty();
@@ -1158,8 +1171,8 @@ $(document).ready(function() {
         var vcraddress = $("#ModuleVCRStatus_choice").val();
 		//console.log("vcraddress="+vcraddress);
         if(vcraddress === "") return;
-        video_windows(vcraddress);
-        //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
+        //video_windows(vcraddress);
+        window.open("http://"+vcraddress,'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
     });
     $("#MonitorTableFlash").on('click',function() {
         query_static_warning();
@@ -5806,7 +5819,8 @@ function query_static_warning(){
             var statcode = $(this).attr('StateCode');
             //console.log("StateCode_click="+statcode);
             if(statcode!==undefined ){
-                get_camera_and_video_web(statcode,true,false);
+                show_cameraModule(statcode);
+                //get_camera_and_video_web(statcode,true,false);
             }
         };
         $(".video_btn").on('click',video_btn_click);
@@ -7438,11 +7452,15 @@ function user_message_update(){
     });*/
 }
 
-function change_camera_status(hvalue,vvalue,url){
+function change_camera_status(hvalue,vvalue,url,zoom){
 	var txt = "当前：水平="+hvalue+"/垂直="+vvalue+"；调节单位：水平="+camera_unit_h+"/垂直="+camera_unit_v;
 
 	$('#VideoModuleCameraState_Input').val(txt);
 	$('#video_img').attr("src",url);
+    //console.log("zoom="+zoom);
+    $('#camera_zoom').data("ionRangeSlider").update({
+        from:zoom
+    });
 
 }
 function get_camera_unit(){
@@ -7488,7 +7506,7 @@ function get_camera_status(statcode){
 	var get_camera_status_callback = function(result){
         var ret = result.status;
         if(ret == "true"){
-            change_camera_status(result.ret.h,result.ret.v,result.ret.url);
+            change_camera_status(result.ret.h,result.ret.v,result.ret.url,result.ret.zoom);
         }else{
             show_alarm_module(true,"获取摄像头基本单位失败，请重新登录！"+result.msg,null);
         }
@@ -7522,18 +7540,25 @@ function move_camera(statcode,vorh,value){
 			user:usr.id
             
         };
-    }else{
+    }else if(vorh == "H"){
         map = {
             action: "CameraHAdj",
             body:body,
 			type:"mod",
 			user:usr.id
         };
+    }else{
+        map = {
+            action: "CameraZAdj",
+            body:body,
+            type:"mod",
+            user:usr.id
+        };
     }
 	var move_camera_callback = function(result){
         var ret = result.status;
         if(ret == "true"){
-            change_camera_status(result.ret.h,result.ret.v,result.ret.url);
+            change_camera_status(result.ret.h,result.ret.v,result.ret.url,result.ret.z);
         }else{
             show_alarm_module(true,"改变摄像头参数失败，请重新登录！"+result.msg,null);
         }

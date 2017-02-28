@@ -2718,7 +2718,8 @@ RESPONSE:
     for($j=0;$j<5;$j++) {
 
         $map = array(
-            'id'=>"Video_" .$StatCode . "_"  .$date ."_" .$hour ."_" .(string)$j,
+            /*'id'=>"Video_" .$StatCode . "_"  .$date ."_" .$hour ."_" .(string)$j,*/
+            'id'=>"127.0.0.1/dist/video/screenshot/1.png",
             'attr'=>"Video_" .$StatCode . "_"  .$date ."_" .$hour ."_" .(string)$j."视频属性"
         );
         array_push($VideoList,$map);
@@ -2893,6 +2894,7 @@ RESPONSE:
 	$camerastatus=array(
 		'v'=>"120~",
 		'h'=>"120~",
+        'zoom'=>'5',
 		'url'=>"./video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
@@ -2910,6 +2912,7 @@ RESPONSE:
 	$camerastatus=array(
 	   'v'=>"120~",
 	   'h'=>"120~",
+	   'zoom'=>'5',
 	   'url'=>"./video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
@@ -2954,7 +2957,56 @@ RESPONSE:
 	$jsonencode = _encode($retval);
 	echo $jsonencode; break;
 
+case "CameraZAdj":
+/*
+REQUEST:
+    var body = {
+	StatCode:statcode,
+	adj: value
+    };
+    var map;
+        map = {
+            action: "CameraZAdj",
+            body:body,
+	    type:"mod",
+	    user:usr.id
 
+        };
+
+RESPONSE:
+	$camerastatus=array(
+		'v'=>"120~",
+		'h'=>"120~",
+		'z'=>"4",
+		'url'=>"./video/screenshot/".(string)$videocode.".png"
+	);
+	$retval=array(
+		'status'=>'true',
+		'ret'=>$camerastatus,
+		'msg'=>'success',
+		'auth'=>'true'
+	);
+*/
+
+		$body_in = $_GET['body'];
+	$usr = $_GET["user"];
+	$StatCode = $body_in["StatCode"];
+	$adj = $body_in["adj"];
+	$videocode = rand(1,5);
+	$camerastatus=array(
+	   'v'=>"120~",
+	   'h'=>"120~",
+	   'z'=>"4",
+	   'url'=>"./video/screenshot/".(string)$videocode.".png"
+	);
+	$retval=array(
+		'status'=>'true',
+		'ret'=>$camerastatus,
+		'msg'=>'success',
+		'auth'=>'true'
+	);
+	$jsonencode = _encode($retval);
+	echo $jsonencode; break;
 
 
 case "CameraVAdj":
@@ -2986,6 +3038,7 @@ RESPONSE:
 	$camerastatus=array(
 		'v'=>"120~",
 		'h'=>"120~",
+		'z'=>"4",
 		'url'=>"./video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(

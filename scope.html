@@ -5,9 +5,13 @@
     <title>环境监测系统</title>
     <!-- Bootstrap core CSS -->
     <link href="./resource/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Ion.RangeSlider -->
+    <link href="./resource/css/normalize.css" rel="stylesheet">
+    <link href="./resource/ion.rangeSlider/css/ion.rangeSlider.css" rel="stylesheet">
+    <link href="./resource/ion.rangeSlider/css/ion.rangeSlider.skinFlat.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="./resource/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="./resource/css/bootstrap-duallistbox.min.css" rel="stylesheet" />
+    <link href="./resource/css/bootstrap-duallistbox.min.css" rel="stylesheet" >
     <link href="./resource/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="./resource/css/buttons.dataTables.min.css" rel="stylesheet">
 
@@ -15,7 +19,7 @@
 
     <!--link href="./css/dataTables.tableTools.min.css" rel="stylesheet"-->
 
-    <link href="./resource/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="./resource/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" >
     <link href="./resource/css/custom.min.css" rel="stylesheet">
     <link href="./css/nprogress.css" rel="stylesheet">
     <link href="./css/scope.css" rel="stylesheet">
@@ -43,7 +47,8 @@
 
     <script src="./js/nprogress.js"></script>
     <script src="./js/hcu_util.js"></script>
-
+    <!-- Ion.RangeSlider -->
+    <script src="./resource/ion.rangeSlider/js/ion.rangeSlider.min.js"></script>
 
 </head>
 <body class="nav-md">
@@ -4221,9 +4226,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="VideoSelectionTitle">视频控制</h4>
+                    <h4 class="modal-title" id="VideoSelectionTitle">摄像头控制</h4>
                 </div>
-                <div class="modal-body" id="VideoSelectionContent" style="min-height: 700px;">
+                <div class="modal-body" id="VideoSelectionContent" style="min-height: 770px;">
                     <div class="col-md-6 col-sm-6 col-xs-12 column" >
                         <div class="input-group ">
                             <span class="input-group-addon" id="VideoModuleStatCode" style="min-width: 100px">站点代码</span>
@@ -4234,8 +4239,8 @@
                         <div class="form-group " style="height:29px">
                             <div class="input-group date form_date col-md-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
                                 <div class="input-group">
-                                    <div class="input-group-addon">视频日期</div>
-                                    <input class="form-control" size="16" type="text" value=""  placeholder="视频日期" id="VideoModule_query_Input" disabled="disabled" style="min-width: 106px">
+                                    <div class="input-group-addon">照片日期</div>
+                                    <input class="form-control" size="16" type="text" value=""  placeholder="照片日期" id="VideoModule_query_Input" disabled="disabled" style="min-width: 106px">
                                     <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div></div>
                         </div>
@@ -4244,7 +4249,7 @@
                     <div class="col-md-12 col-sm-12 col-xs-12 column" >
                         <div class="input-group ">
                             <span class="input-group-addon" id="VideoModuleHour" style="min-width: 100px">时间段</span>
-                            <select class="form-control" placeholder="传感器状态" aria-describedby="basic-addon1" id="VideoModuleHour_choice">
+                            <select class="form-control" placeholder="时间段" aria-describedby="basic-addon1" id="VideoModuleHour_choice">
                                 <option value="0">0:00-1:00</option>
                                 <option value="1">1:00-2:00</option>
                                 <option value="2">2:00-3:00</option>
@@ -4274,8 +4279,8 @@
                     </div>
                     <div class="col-md-12 col-sm-12 col-xs-12 column" >
                         <div class="input-group ">
-                            <span class="input-group-addon" id="ModuleVCRStatus" style="min-width: 100px">选择视频</span>
-                            <select class="form-control" placeholder="没有视频" aria-describedby="basic-addon1" id="ModuleVCRStatus_choice">
+                            <span class="input-group-addon" id="ModuleVCRStatus" style="min-width: 100px">选择照片</span>
+                            <select class="form-control" placeholder="没有照片" aria-describedby="basic-addon1" id="ModuleVCRStatus_choice">
                             </select>
                         </div>
                     </div>
@@ -4308,6 +4313,19 @@
                                 <a href="#" class="cycle-menuItem  cycle-a fa fa-angle-double-left fa-2x" id="btn_camera_left"></a>
                             </div>
                             <!--a class="cycle-center"></a-->
+                        </div>
+                    </div>
+                    <p/>
+                    <div class="x_content col-md-12 col-sm-12 col-xs-12 column" style="text-align : center;margin:auto;">
+                        <div class="row grid_slider" style="margin:auto;">
+                            <div class="col-md-3 col-sm-3 col-xs-0" style="margin:auto;">
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12" style="margin:auto;">
+                                <p>焦距调节</p>
+                                <input type="text" class="camerazoom" value="" id="camera_zoom" style="margin:auto;"/>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-0" style="margin:auto;">
+                            </div>
                         </div>
                     </div>
                 </div>
