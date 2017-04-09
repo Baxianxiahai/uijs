@@ -467,7 +467,7 @@ function get_user_information(){
             get_sensor_list();
             get_camera_unit();
             get_project_list();
-            getfavoritelist();
+            //getfavoritelist();
             hide_menu();
             setTimeout(mp_monitor,wait_time_middle);
         }
@@ -5097,7 +5097,7 @@ function submit_new_dev_module(){
     new_dev(device);
 }
 function show_mod_dev_module(device){
-    $("#newDevModalLabel").text("项目修改");
+    $("#newDevModalLabel").text("设备修改");
     device_module_status = false;
     //设备编号 DevCode
     //监测点编号 StatCode
@@ -5412,7 +5412,8 @@ function initializeMap(){
     }
     // hyj this will not be a problem because the bmap initialization will cost several seconds.
     window.setTimeout(addMarker, wait_time_long);
-    build_fast_guild();
+    //build_fast_guild();
+    getfavoritelist();
     //addMarker();
     map_initialized=true;
     //$(window).resize();
@@ -8159,6 +8160,7 @@ function getfavoritelist(){
         var ret = result.status;
         if(ret == "true"){
             usr_faverate_list = result.ret;
+            build_fast_guild();
             if(usr_faverate_list.length>0){
                 get_city(usr_faverate_list[0].Latitude,usr_faverate_list[0].Longitude);
             }
