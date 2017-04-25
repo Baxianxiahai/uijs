@@ -1,6 +1,7 @@
 <?php
 header("Content-type:text/html;charset=utf-8");
 #require '/php/req.php';
+$install_path="_INSTALL_PATH_";
 function _encode($arr)
 {
   $na = array();
@@ -1295,7 +1296,7 @@ RESPONSE:
 	for($i=1;$i<4;$i++){
 		$temp = array(
 			'name'=> (string)($i+1),
-			'url'=> "/video/screenshot/".(string)$i.".png"
+			'url'=> "/dist/video/screenshot/".(string)$i.".png"
 		);
 		array_push($projpic,$temp);
 	}
@@ -1310,7 +1311,7 @@ RESPONSE:
 	for($i=0;$i<4;$i++){
 		$temp = array(
 			'name'=> (string)($i+1),
-            'url'=> "/video/screenshot/".(string)($i+1).".png"
+            'url'=> "/dist/video/screenshot/".(string)($i+1).".png"
 		);
 		array_push($projdev,$temp);
 	}
@@ -2554,7 +2555,7 @@ REQUEST:
 RESPONSE:
 	$map = array(
 		'name'=>"test".(string)$i.".jpg",
-		'url'=>"assets/img/test".(string)$i.".jpg"
+		'url'=>$install_path."/screensaver/assets/img/test".(string)$i.".jpg"
 	);
 	array_push($ImgList,$map);
 
@@ -2571,7 +2572,7 @@ RESPONSE:
         for ($i=1;$i<6;$i++){
             $map = array(
                 'name'=>"test".(string)$i.".jpg",
-                'url'=>"assets/img/test".(string)$i.".jpg"
+                'url'=>$install_path."/screensaver/assets/img/test".(string)$i.".jpg"
             );
             array_push($ImgList,$map);
         }
@@ -2763,7 +2764,7 @@ RESPONSE:
 
         $map = array(
             /*'id'=>"Video_" .$StatCode . "_"  .$date ."_" .$hour ."_" .(string)$j,*/
-            'id'=>"127.0.0.1/dist/video/screenshot/1.png",
+            'id'=>'127.0.0.1'.$install_path."/video/screenshot/1.png",
             'attr'=>"Video_" .$StatCode . "_"  .$date ."_" .$hour ."_" .(string)$j."视频属性"
         );
         array_push($VideoList,$map);
@@ -2792,7 +2793,7 @@ var map = {
 RESPONSE:
 $retval=array(
 	'status'=>'true',
-	'ret'=> "avorion.mp4",
+	'ret'=> $install_path."/video/avorion.mp4",
 	'msg'=>'success',
 	'auth'=>'true'
 );
@@ -2803,7 +2804,7 @@ $retval=array(
     if($number == 10){
         $retval=array(
             'status'=>'true',
-            'ret'=> "avorion.mp4",
+            'ret'=> $install_path."/video/avorion.mp4",
 			'msg'=>'success',
 			'auth'=>'true'
         );
@@ -2939,7 +2940,7 @@ RESPONSE:
 		'v'=>"120~",
 		'h'=>"120~",
         'zoom'=>'5',
-		'url'=>"./video/screenshot/".(string)$videocode.".png"
+		'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -2957,7 +2958,7 @@ RESPONSE:
 	   'v'=>"120~",
 	   'h'=>"120~",
 	   'zoom'=>'5',
-	   'url'=>"./video/screenshot/".(string)$videocode.".png"
+	   'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -3022,7 +3023,7 @@ RESPONSE:
 		'v'=>"120~",
 		'h'=>"120~",
 		'z'=>"4",
-		'url'=>"./video/screenshot/".(string)$videocode.".png"
+		'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -3041,7 +3042,7 @@ RESPONSE:
 	   'v'=>"120~",
 	   'h'=>"120~",
 	   'z'=>"4",
-	   'url'=>"./video/screenshot/".(string)$videocode.".png"
+	   'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -3083,7 +3084,7 @@ RESPONSE:
 		'v'=>"120~",
 		'h'=>"120~",
 		'z'=>"4",
-		'url'=>"./video/screenshot/".(string)$videocode.".png"
+		'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -3101,7 +3102,7 @@ RESPONSE:
 	$camerastatus=array(
 	   'v'=>"120~",
 	   'h'=>"120~",
-	   'url'=>"./video/screenshot/".(string)$videocode.".png"
+	   'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
@@ -3120,7 +3121,7 @@ case "CameraHAdj":
             var camerastatus={
                 h:"120~",
                 v:"120~",
-                url:"/video/screenshot/"+videocode+".png"
+                url:$install_path."/video/screenshot/"+videocode+".png"
             }
             var retval={
                 status:"true",
@@ -3136,7 +3137,7 @@ case "CameraHAdj":
 	$camerastatus=array(
 		'v'=>"120~",
 		'h'=>"120~",
-		'url'=>"./video/screenshot/".(string)$videocode.".png"
+		'url'=>$install_path."/video/screenshot/".(string)$videocode.".png"
 	);
 	$retval=array(
 		'status'=>'true',
