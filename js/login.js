@@ -1,6 +1,7 @@
 ﻿
 //var request_head= ".request";
 //var jump_url = ".jump";
+var httphead = gethttphead();
 var basic_address = getRelativeURL()+"/";
 var request_head= basic_address+"request.php";
 var jump_url = basic_address+"jump.php";
@@ -48,7 +49,7 @@ function getCookie(name)
 }
 function jump(str){
     log("try to dump to session "+window.location.host+jump_url+"?session"+str);
-    window.location="http://"+window.location.host+jump_url+"?session="+str;
+    window.location=httphead+"//"+window.location.host+jump_url+"?session="+str;
 }
 $(document).ready(function() {
     get_size();

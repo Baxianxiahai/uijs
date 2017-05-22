@@ -5,6 +5,7 @@
 
 
 //切换生产环境要更新以下数据，包括logout函数
+var httphead = gethttphead();
 var basic_address = getRelativeURL()+"/";
 console.log(basic_address);
 var wait_time_long =3000;
@@ -18,7 +19,7 @@ var screen_saver_address=basic_address+"screensaver/screen.html";
 var weather_info="";
 function logout(){
     delCookie("Environmental.inspection.session");
-    window.location="http://"+window.location.host+basic_address+"Login.html";
+    window.location=httphead+"//"+window.location.host+basic_address+"Login.html";
 
     /*
      delCookie("Environmental.inspection.session");
@@ -29,11 +30,11 @@ function logout(){
 }
 
 function video_windows(videoid){
-    window.open("http://"+window.location.host+basic_address+"/video/video.html?id="+videoid,'监控录像',"height=284, width=340, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+    window.open(httphead+"//"+window.location.host+basic_address+"/video/video.html?id="+videoid,'监控录像',"height=284, width=340, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
 }
 
 function screen_windows(){
-    window.open("http://"+window.location.host+screen_saver_address+"?id="+usr.id+"&StatCode="+monitor_selected.StatCode,'屏幕保护',"height=auto, width=auto");
+    window.open(httphead+"//"+window.location.host+screen_saver_address+"?id="+usr.id+"&StatCode="+monitor_selected.StatCode,'屏幕保护',"height=auto, width=auto");
 }
 //
 
@@ -1158,7 +1159,7 @@ $(document).ready(function() {
         var vcraddress = $("#VCRStatus_choice").val();
         if(vcraddress === "") return;
         video_windows(vcraddress);
-        //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
+        //window.open(httphead+"//"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
     });
     $("#VideoWindow").on('click',function() {
         if(monitor_selected === null) return;
@@ -1167,14 +1168,14 @@ $(document).ready(function() {
     $("#CameraWindow").on('click',function() {
         if(monitor_selected === null) return;
         get_camera_and_video_web(monitor_selected.StatCode,true,false);
-        //window.open("http://"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
+        //window.open(httphead+"//"+vcraddress,'监控录像',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no")
     });
 	$("#ModuleVCRshow").on('click',function() {
         var vcraddress = $("#ModuleVCRStatus_choice").val();
 		//console.log("vcraddress="+vcraddress);
         if(vcraddress === "") return;
         //video_windows(vcraddress);
-        window.open("http://"+vcraddress,'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        window.open(httphead+"//"+vcraddress,'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
     });
     $("#MonitorTableFlash").on('click',function() {
         query_static_warning();
@@ -1193,7 +1194,7 @@ $(document).ready(function() {
     $("#ScreenSaver").on('click',function() {
         if(monitor_selected === null) return;
         screen_windows();
-        //window.open("http://"+window.location.host+"/"+screen_saver_address+"?id="+usr.id+"&StatCode="+monitor_selected.StatCode,'屏幕保护',"height=auto, width=auto");
+        //window.open(httphead+"//"+window.location.host+"/"+screen_saver_address+"?id="+usr.id+"&StatCode="+monitor_selected.StatCode,'屏幕保护',"height=auto, width=auto");
     });
     $("#UsrMsgCommit").on('click',function() {
         touchcookie();
@@ -4317,8 +4318,8 @@ function draw_point_picture_panel(){
     txt = txt+ "</tbody>";
     $("#Table_point_picture").append(txt);
     $(".pictd").on('click',function(){
-        console.log("http://"+window.location.host+$(this).attr("picurl"));
-        window.open("http://"+window.location.host+$(this).attr("picurl"),'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        console.log(httphead+"//"+window.location.host+$(this).attr("picurl"));
+        window.open(httphead+"//"+window.location.host+$(this).attr("picurl"),'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
     });
 
 }
@@ -8137,7 +8138,7 @@ function get_camera_and_video_web(statcode,ifcamera,ifvideo){
 }
 function get_pm(city_name){
     var cityname = city_name;
-    var url = "http://api.map.baidu.com/telematics/v3/weather?location="+cityname+"&output=json&ak=2Pcn24FAWGTcyW4jsC8O38IyPd0pDZYX";
+    var url = httphead+"//api.map.baidu.com/telematics/v3/weather?location="+cityname+"&output=json&ak=2Pcn24FAWGTcyW4jsC8O38IyPd0pDZYX";
     $.ajax({
         url: url,
         //dataType: "script",

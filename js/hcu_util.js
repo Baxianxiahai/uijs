@@ -179,6 +179,13 @@ function getRelativeURL(){
     return reUrl;
 
 }
+function gethttphead(){
+    var url = document.location.toString();
+    var arrUrl= url.split("//");
+    var httphead = arrUrl[0];
+    return httphead;
+
+}
 
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
