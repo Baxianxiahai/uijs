@@ -141,6 +141,9 @@ gulp.task('scripts', function() {
     gulp.src('./Login.html')
         .pipe(htmlmin(option_html))
         .pipe(gulp.dest(option.buildPath));
+    gulp.src('./LostPassword.html')
+        .pipe(htmlmin(option_html))
+        .pipe(gulp.dest(option.buildPath));
     gulp.src('./login_other.html')
         .pipe(htmlmin(option_html))
         .pipe(gulp.dest(option.buildPath));

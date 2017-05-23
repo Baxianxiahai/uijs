@@ -13,7 +13,7 @@ body {
     padding: 9px 0;
 }*/
 .logo-header{
-    position:relative;
+    position:absolute;
     margin-top:0px;
     height:110px;
 }
