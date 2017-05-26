@@ -459,6 +459,8 @@ function get_user_information(){
             show_alarm_module(true,"获取用户失败，请联系管理员",null);
         }else{
             usr = result.ret;
+
+            get_alarm_type_list();
             get_user_message();
             get_user_image();
             //hyj add in 20160926 for server very slow
@@ -1108,6 +1110,29 @@ $(document).ready(function() {
 
 
     });
+    $("#AlarmQueryCommit2").on('click',function(){
+
+        touchcookie();
+        if(alarm_selected === null){
+            $("#WCStatCode_Input2").attr("placeholder","请先在地图上选择一个点");
+            return;
+        }
+
+        if($("#Alarm_query_Input2").val()==="" || $("#Alarm_query_Input").val() === null){
+            $("#Alarm_query_Input2").attr("placeholder","请输入日期");
+            return;
+        }
+
+        if(alarm_type_list!== null){
+            unhide_all_chart();
+            for(var i=0;i<alarm_type_list.length;i++){
+                query_alarm2($("#Alarm_query_Input2").val(),alarm_type_list[i].id,alarm_type_list[i].name);
+            }
+        }
+        //window.setTimeout(show_table_tags, wait_time_long);
+
+
+    });
     $("#Video_query_Input").change(function(){
         $("#Video_query_Input").val(date_compare_today($("#Video_query_Input").val()));
         video_selection_change();
@@ -1124,9 +1149,16 @@ $(document).ready(function() {
     $("#Alarm_query_Input").change(function(){
         $("#Alarm_query_Input").val(date_compare_today($("#Alarm_query_Input").val()));
     });
+    $("#Alarm_query_Input2").change(function(){
+        $("#Alarm_query_Input2").val(date_compare_today($("#Alarm_query_Input2").val()));
+    });
     $("#AlarmExport").on('click',function() {
         touchcookie();
         Data_export_alarm();
+    });
+    $("#AlarmExport2").on('click',function() {
+        touchcookie();
+        Data_export_alarm2();
     });
     $("#AlarmQuery_Commit").on('click',function() {
         touchcookie();
@@ -1375,6 +1407,9 @@ function calculate_row(){
 function show_table_tags(){
 	$('#Warning_'+alarm_type_list[0].id+'_day').css('display','block');
 }
+function show_table_tags2(){
+    $('#Warning_'+alarm_type_list[0].id+'_day2').css('display','block');
+}
 function user_manager(){
     //alert($(document).height());
     //alert($(document).width());
@@ -1426,6 +1461,7 @@ function mp_monitor(){
     clear_window();
     write_title("地图监控","在地图上对站点进行监控");
     $("#MPMonitorView").css("display","block");
+    console.log("into map:"+map_initialized);
     if(!map_initialized)initializeMap();
 }
 function mp_monitor_table(){
@@ -5389,6 +5425,12 @@ function monitor_lock(){
     }
 }
 function initializeMap(){
+    //hyj add 20170526
+    get_project_list();
+    get_proj_point_list();
+    get_monitor_alarm_list();
+    get_alarm_type_list();
+    //end hyj add 20170526
     get_monitor_list();
     var basic_min_height = parseInt(($("#MPMonitorViewMap").css("min-height")).replace(/[^0-9]/ig,""));
     //console.log(window.screen.availHeight-275);
@@ -5416,12 +5458,322 @@ function initializeMap(){
     //build_fast_guild();
     getfavoritelist();
     //addMarker();
+    //hyj add 20170526
+    //console.log("before into tab2:");
+    //console.log("before into tab2:"+alarm_type_list);
+    //window.setTimeout(alarm_addMarker2, wait_time_long);
+    window.setTimeout(build_alarm_tabs2, wait_time_long);
+    //end hyj add 20170526
     map_initialized=true;
     //$(window).resize();
+}
+
+//hyj add 20170526
+function build_alarm_tabs2(){
+    //console.log("into tab2:"+alarm_type_list);
+    if(alarm_type_list === null) return;
+    $("#Alarm_chart_view_nav2").empty();
+    $("#Alarm_Chart_content2").empty();
+    var txt1 = "";
+    var txt2 = "";
+    var i;
+    for( i=0;i<alarm_type_list.length;i++){
+        var temp = "";
+        var temp2 = "";
+        if(i ===0) {temp = "class='active'"; temp2 = " in active";}
+        txt1=txt1+"<li class='dropdown'>"+
+            "<a href='#' id='Warning_"+alarm_type_list[i].id+"_tab2' class='dropdown-toggle' data-toggle='dropdown'>"+alarm_type_list[i].name+" <b class='caret'></b>"+
+            "</a>"+
+            "<ul class='dropdown-menu' role='menu' aria-labelledby='Warning_"+alarm_type_list[i].id+"_tab2''>"+
+            "<li><a href='#Warning_"+alarm_type_list[i].id+"_day2' "+temp+" tabindex='-1' data-toggle='tab' id='Warning_"+alarm_type_list[i].id+"_tab_day2' alarmid='"+alarm_type_list[i].id+"'>分钟报表（日）</a> </li>"+
+            "<li><a href='#Warning_"+alarm_type_list[i].id+"_week2' tabindex='-1' data-toggle='tab'  id='Warning_"+alarm_type_list[i].id+"_tab_week2' alarmid='"+ alarm_type_list[i].id+"'>小时报表（周）</a> </li>"+
+            "<li><a href='#Warning_"+alarm_type_list[i].id+"_month2' tabindex='-1' data-toggle='tab'  id='Warning_"+alarm_type_list[i].id+"_tab_month2' alarmid='"+alarm_type_list[i].id+"'> 日报表（30天）</a> </li> </ul> </li>";
+
+        txt2 = txt2+
+            "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_day2' >"+
+            "<div id='"+alarm_type_list[i].id+"_canvas_day2' class='Alarm_Canvas'></div></div>"+
+            "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_week2' >"+
+            "<div id='"+alarm_type_list[i].id+"_canvas_week2' class='Alarm_Canvas' ></div></div>"+
+            "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_month2' >"+
+            "<div id='"+alarm_type_list[i].id+"_canvas_month2' class='Alarm_Canvas' ></div></div>";
+
+    }
+    $("#Alarm_chart_view_nav2").append(txt1);
+    $("#Alarm_Chart_content2").append(txt2);
+    Warning_tab_day_click2 = function(){
+        hide_all_chart2();
+        $("#Warning_"+$(this).attr('alarmid')+"_day2").css("display","block");
+    };
+    Warning_tab_week_click2 = function(){
+        hide_all_chart2();
+        $("#Warning_"+$(this).attr('alarmid')+"_week2").css("display","block");
+    };
+    Warning_tab_month_click2 = function(){
+        hide_all_chart2();
+        $("#Warning_"+$(this).attr('alarmid')+"_month2").css("display","block");
+    };
 
 
+    for( i=0;i<alarm_type_list.length;i++){
+
+        $("#Warning_"+alarm_type_list[i].id+"_tab_day2").on('click',Warning_tab_day_click2);
+        $("#Warning_"+alarm_type_list[i].id+"_tab_week2").on('click',Warning_tab_week_click2);
+        $("#Warning_"+alarm_type_list[i].id+"_tab_month2").on('click',Warning_tab_month_click2);
+    }
+    hide_all_chart2();
+    $(window).resize();
+}
+function hide_all_chart2(){
+    for(var i=0;i<alarm_type_list.length;i++){
+        $("#Warning_"+alarm_type_list[i].id+"_day2").css("display","none");
+        $("#Warning_"+alarm_type_list[i].id+"_week2").css("display","none");
+        $("#Warning_"+alarm_type_list[i].id+"_month2").css("display","none");
+    }
+}
+function unhide_all_chart2(){
+    for(var i=0;i<alarm_type_list.length;i++){
+        $("#Warning_"+alarm_type_list[i].id+"_day2").css("display","block");
+        $("#Warning_"+alarm_type_list[i].id+"_week2").css("display","block");
+        $("#Warning_"+alarm_type_list[i].id+"_month2").css("display","block");
+    }
+}
+function get_select_alarm2(title){
+    var temp = title.split(":");
+    if(monitor_map_list === null) monitor_map_list = [];
+    for(var i=0;i<monitor_map_list.length;i++){
+        if(monitor_map_list[i].StatCode == temp[0]){
+            alarm_selected = monitor_map_list[i];
+            return;
+        }
+    }
+    alarm_selected = null;
+    return;
+}
+function get_monitorpointinfo_on_map(){
+    if(alarm_selected === null){
+        return;
+    }
+    $("#WCStatCode_Input2").val(alarm_selected.StatName);
 
 }
+function query_alarm2(date,type,name){
+    var body={
+        StatCode: alarm_selected.StatCode,
+        date: date,
+        type:type
+    };
+    var map={
+        action:"AlarmQuery",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var query_alarm_callback2 = function(result){
+        if(result.status == "false"){
+            show_expiredModule();
+            return;
+        }
+        var StatCode = result.ret.StatCode;
+        var date = result.ret.date;
+        var AlarmName = result.ret.AlarmName;
+        var AlarmUnit = result.ret.AlarmUnit;
+        var WarningTarget = result.ret.WarningTarget;
+        var minute_alarm = result.ret.minute_alarm;
+        var hour_alarm = result.ret.hour_alarm;
+        var day_alarm = result.ret.day_alarm;
+        var minute_head = result.ret.minute_head;
+        var hour_head = result.ret.hour_head;
+        var day_head = result.ret.day_head;
+        var Alarm_min = parseInt(result.ret.Alarm_min);
+        var Alarm_max = parseInt(result.ret.Alarm_max);
+
+        //console.log(("#"+type+"_canvas_day"));
+        //console.log(("#"+type+"_canvas_week"));
+        //console.log(("#"+type+"_canvas_month"));
+        $("#Warning_"+type+"_day2").css("display","block");
+        var max = minute_head.length-1;
+        if(max > 120) max = 120;
+
+        $("#"+type+"_canvas_day2").highcharts({
+
+            chart: {
+                type: 'spline',
+                zoomType: 'x'
+            },
+            title: {
+                text: name+' 分钟值日志，日期：'+date
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 150,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            xAxis: {
+                categories:minute_head ,
+                max: max
+            },
+
+            scrollbar: {
+
+                enabled: true
+
+            },
+            yAxis: {
+                title: {
+                    text: name
+                },
+                max:Alarm_max,
+                min:Alarm_min
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: AlarmUnit
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: alarm_selected.StatName,
+                data: minute_alarm,
+                turboThreshold: 1500       //设置最大数据量1500个
+            }]
+        });
+        $("#Warning_"+type+"_day2").css("display","none");
+        $("#Warning_"+type+"_week2").css("display","block");
+        max = hour_head.length-1;
+        if(max > 120) max = 120;
+        $("#"+type+"_canvas_week2").highcharts({
+
+            chart: {
+                type: 'spline',
+                zoomType: 'x'
+            },
+            title: {
+                text: name+' 小时平均值日志，周期： '+date+' 为截至的7天 '
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 150,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            xAxis: {
+                categories: hour_head,
+                max: max
+            },
+
+            scrollbar: {
+
+                enabled: true
+
+            },
+            yAxis: {
+                title: {
+                    text: name
+                },
+                max:Alarm_max,
+                min:Alarm_min
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: AlarmUnit
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: alarm_selected.StatName,
+                data: hour_alarm,
+                turboThreshold: 1500       //设置最大数据量1500个
+            }]
+        });
+        $("#Warning_"+type+"_week2").css("display","none");
+        $("#Warning_"+type+"_month2").css("display","block");
+        max = day_head.length-1;
+        if(max > 30) max = 30;
+        $("#"+type+"_canvas_month2").highcharts({
+
+            chart: {
+                type: 'spline',
+                zoomType: 'x'
+            },
+            title: {
+                text: name+' 日平均值日志，周期： '+date+' 为截至的30天 '
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 150,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            xAxis: {
+                categories: day_head,
+                max: max
+            },
+
+            scrollbar: {
+
+                enabled: true
+
+            },
+            yAxis: {
+                title: {
+                    text: name
+                },
+                max:Alarm_max,
+                min:Alarm_min
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: AlarmUnit
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: alarm_selected.StatName,
+                data: day_alarm,
+                turboThreshold: 1500       //设置最大数据量1500个
+
+            }]
+        });
+        $("#Warning_"+type+"_month2").css("display","none");
+
+        //HYJ add for server slow
+        show_table_tags2();
+    };
+    JQ_get(request_head,map,query_alarm_callback2);
+
+}
+//end hyj add 20170526
 function get_select_monitor(title){
     var temp = title.split(":");
     if(monitor_map_list === null) monitor_map_list = [];
@@ -5444,12 +5796,16 @@ function addMarker(point){
     });
 	monitor_mark_click = function(){
 		get_select_monitor(this.getTitle());
+        //hyj add for 20170526
+        get_select_alarm2(this.getTitle());
 		//console.log("Selected:"+monitor_selected.StatName);
 		var sContent = this.getTitle();
-		var infoWindow = new BMap.InfoWindow(sContent,{offset:new BMap.Size(0,-23)});
-		infoWindow.setWidth(600);
+		var infoWindow = new BMap.InfoWindow(sContent,{offset:new BMap.Size(0,-23),width:600,height:300});
+		//infoWindow.setWidth(600);
+        //infoWindow.setHeight(500);
 		monitor_map_handle = infoWindow;
 		get_monitor_warning_on_map();
+        get_monitorpointinfo_on_map();
 		this.openInfoWindow(infoWindow);
 		infoWindow.addEventListener("close",function(){
 			if(monitor_map_handle == this) monitor_map_handle = null;
@@ -6441,209 +6797,7 @@ function query_alarm(date,type,name){
         show_table_tags();
 	};
 	JQ_get(request_head,map,query_alarm_callback);
-/*
-    jQuery.get(request_head, map, function (data) {
-        log(data);
-        var result=JSON.parse(data);
-        if(result.status == "false"){
-            show_expiredModule();
-            return;
-        }
-        //var ret = result.status;
-        //if(ret == "false"){
-        //    show_alarm_module(true,"获取详细日志信息失败！");
-        //    return;
-        //}
-        var StatCode = result.StatCode;
-        var date = result.date;
-        var AlarmName = result.AlarmName;
-        var AlarmUnit = result.AlarmUnit;
-        var WarningTarget = result.WarningTarget;
-        var minute_alarm = result.minute_alarm;
-        var hour_alarm = result.hour_alarm;
-        var day_alarm = result.day_alarm;
-        var minute_head = result.minute_head;
-        var hour_head = result.hour_head;
-        var day_head = result.day_head;
 
-
-        //console.log(("#"+type+"_canvas_day"));
-        //console.log(("#"+type+"_canvas_week"));
-        //console.log(("#"+type+"_canvas_month"));
-        $("#Warning_"+type+"_day").css("display","block");
-        var max = minute_head.length-1;
-        if(max > 120) max = 120;
-
-        $("#"+type+"_canvas_day").highcharts({
-
-            chart: {
-                type: 'areaspline',
-                zoomType: 'x'
-            },
-            title: {
-                text: name+' 分钟值日志，日期：'+date
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'left',
-                verticalAlign: 'top',
-                x: 150,
-                y: 100,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-            },
-            xAxis: {
-                categories:minute_head ,
-                max: max
-            },
-
-            scrollbar: {
-
-                enabled: true
-
-            },
-            yAxis: {
-                title: {
-                    text: name
-                }
-            },
-            tooltip: {
-                shared: true,
-                valueSuffix: AlarmUnit
-            },
-            credits: {
-                enabled: false
-            },
-            plotOptions: {
-                areaspline: {
-                    fillOpacity: 0.5
-                }
-            },
-            series: [{
-                name: alarm_selected.StatName,
-                data: minute_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
-        });
-        $("#Warning_"+type+"_day").css("display","none");
-        $("#Warning_"+type+"_week").css("display","block");
-        max = hour_head.length-1;
-        if(max > 120) max = 120;
-        $("#"+type+"_canvas_week").highcharts({
-
-            chart: {
-                type: 'areaspline',
-                zoomType: 'x'
-            },
-            title: {
-                text: name+' 小时平均值日志，周期： '+date+' 为截至的7天 '
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'left',
-                verticalAlign: 'top',
-                x: 150,
-                y: 100,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-            },
-            xAxis: {
-                categories: hour_head,
-                max: max
-            },
-
-            scrollbar: {
-
-                enabled: true
-
-            },
-            yAxis: {
-                title: {
-                    text: name
-                }
-            },
-            tooltip: {
-                shared: true,
-                valueSuffix: AlarmUnit
-            },
-            credits: {
-                enabled: false
-            },
-            plotOptions: {
-                areaspline: {
-                    fillOpacity: 0.5
-                }
-            },
-            series: [{
-                name: alarm_selected.StatName,
-                data: hour_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
-        });
-        $("#Warning_"+type+"_week").css("display","none");
-        $("#Warning_"+type+"_month").css("display","block");
-        max = day_head.length-1;
-        if(max > 30) max = 30;
-        $("#"+type+"_canvas_month").highcharts({
-
-            chart: {
-                type: 'areaspline',
-                zoomType: 'x'
-            },
-            title: {
-                text: name+' 日平均值日志，周期： '+date+' 为截至的30天 '
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'left',
-                verticalAlign: 'top',
-                x: 150,
-                y: 100,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-            },
-            xAxis: {
-                categories: day_head,
-                max: max
-            },
-
-            scrollbar: {
-
-                enabled: true
-
-            },
-            yAxis: {
-                title: {
-                    text: name
-                }
-            },
-            tooltip: {
-                shared: true,
-                valueSuffix: AlarmUnit
-            },
-            credits: {
-                enabled: false
-            },
-            plotOptions: {
-                areaspline: {
-                    fillOpacity: 0.5
-                }
-            },
-            series: [{
-                name: alarm_selected.StatName,
-                data: day_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-
-            }]
-        });
-        $("#Warning_"+type+"_month").css("display","none");
-
-        //HYJ add for server slow
-        show_table_tags();
-    });*/
 }
 function initializeAlarmMap(){
     get_project_list();
@@ -6927,6 +7081,36 @@ function Data_export_alarm() {
         if_table_initialize = false;
     }
 	$("#ExportTable").empty();
+    $("#TableQueryCondition").css("display", "block");
+    $("#TableExportTitle").text("告警日志导出");
+    $("#QueryProjCode_choice").empty();
+    $("#QueryStatCode_choice").empty();
+    if(alarm_selected!==null){
+        $("#QueryProjCode_choice").append(get_proj_option(alarm_selected.ProjCode));
+        //console.log($("#DevProjCode_choice").val());
+        get_proj_point_option($("#QueryProjCode_choice").val(), $("#QueryStatCode_choice"), alarm_selected.StatCode);
+
+        $("#QueryStatCode_choice").val(alarm_selected.StatCode);
+    }
+    else{
+        $("#QueryProjCode_choice").append(get_proj_option());
+        //console.log($("#DevProjCode_choice").val());
+        get_proj_point_option($("#QueryProjCode_choice").val(),$("#QueryStatCode_choice"),"");
+    }
+    $("#QueryStartTime_Input").val(get_yesterday());
+    $("#QueryEndTime_Input").val(get_yesterday());
+    modal_middle($('#TableExportModule'));
+    $('#TableExportModule').modal('show');
+}
+function Data_export_alarm2() {
+
+
+
+    if (if_table_initialize){
+        $("#ExportTable").DataTable().destroy();
+        if_table_initialize = false;
+    }
+    $("#ExportTable").empty();
     $("#TableQueryCondition").css("display", "block");
     $("#TableExportTitle").text("告警日志导出");
     $("#QueryProjCode_choice").empty();
@@ -8208,12 +8392,14 @@ function build_fast_guild(){
         var marker = find_marker(title);
         if(marker !== null) {
             get_select_monitor(title);
+            get_select_alarm2(title);
             //console.log("Selected:"+monitor_selected.StatName);
             var sContent = $(this).attr("StatCode") + ":" + $(this).attr("StatName");
-            var infoWindow = new BMap.InfoWindow(sContent, {offset: new BMap.Size(0, -23)});
-            infoWindow.setWidth(600);
+            var infoWindow = new BMap.InfoWindow(sContent, {offset: new BMap.Size(0, -23),width:600,height:300});
+            //infoWindow.setWidth(600);
             monitor_map_handle = infoWindow;
             get_monitor_warning_on_map();
+            get_monitorpointinfo_on_map();
             marker.openInfoWindow(infoWindow);
             infoWindow.addEventListener("close", function () {
                 if (monitor_map_handle == this) monitor_map_handle = null;

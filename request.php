@@ -2075,7 +2075,9 @@ RESPONSE:
 		'hour_head'=>$hour_head,
 		'minute_alarm'=> $minute_alarm,
 		'hour_alarm'=> $hour_alarm,
-		'day_alarm'=> $day_alarm
+		'day_alarm'=> $day_alarm,
+		'Alarm_min'=>"0",
+		'Alarm_max'=>"150"
 		);
 	$retval= array(
 		'status'=>"true",
