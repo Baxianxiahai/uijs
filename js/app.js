@@ -1118,7 +1118,7 @@ $(document).ready(function() {
             return;
         }
 
-        if($("#Alarm_query_Input2").val()==="" || $("#Alarm_query_Input").val() === null){
+        if($("#Alarm_query_Input2").val()==="" || $("#Alarm_query_Input2").val() === null){
             $("#Alarm_query_Input2").attr("placeholder","请输入日期");
             return;
         }
@@ -5432,6 +5432,9 @@ function initializeMap(){
     get_alarm_type_list();
     //end hyj add 20170526
     get_monitor_list();
+    var today = new Date();
+
+    $("#Alarm_query_Input2").val(today.Format("yyyy-MM-dd"));
     var basic_min_height = parseInt(($("#MPMonitorViewMap").css("min-height")).replace(/[^0-9]/ig,""));
     //console.log(window.screen.availHeight-275);
     if((window.screen.availHeight-275)>basic_min_height)basic_min_height =window.screen.availHeight-275;
