@@ -1433,7 +1433,7 @@ function key_manage(){
 }
 function proj_manage(){
     clear_window();
-    write_title("项目组管理","根据您的权限对项目进行添加/删除/修改等操作");
+    write_title("项目信息","根据您的权限对项目进行添加/删除/修改等操作");
     $("#ProjManageView").css("display","block");
     proj_intialize(0);
 }
@@ -6159,7 +6159,8 @@ function query_static_warning(){
         $("#MonitorFlashTime").append("最后刷新时间："+Last_update_date);
         var ColumnName = result.ret.ColumnName;
         var TableData = result.ret.TableData;
-        var txt = "<thead> <tr><th></th><th></th>";
+        //var GeoData = result.ret.GeoData;
+        var txt = "<thead> <tr><th></th><th></th><th></th>";
         var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
@@ -6170,7 +6171,10 @@ function query_static_warning(){
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
             //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
-            txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
+            txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button>" +
+                "</td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button>" +
+                "</td><td><button type='button' class='btn btn-default map_btn' StateCode='"+TableData[i][0]+"' StateName='"+TableData[i][1]+"' ><em class='glyphicon glyphicon-globe ' aria-hidden='true' ></em></button>" +
+                "</td>";
             //console.log("StateCode="+TableData[i][0]);
             for(var j=0;j<TableData[i].length;j++){
                 txt = txt +"<td>"+TableData[i][j]+"</td>";
@@ -6237,11 +6241,52 @@ function query_static_warning(){
                 //get_camera_and_video_web(statcode,true,false);
             }
         };
+        map_btn_click = function(){
+            mp_monitor();
+            var statcode = $(this).attr('StateCode');
+            var statname = $(this).attr('StateName');
+
+            var delayfunction = function(statcode,statname){
+                if(statcode!==undefined && statname!==undefined ){
+
+                    //console.log("Longitude_click="+fLongitude+"Latitude_click="+fLatitude);
+                    //map_MPMonitor.centerAndZoom(new BMap.Point(fLongitude,fLatitude),15);
+                    var title = statcode+":"+statname;
+                    var marker = find_marker(title);
+                    if(marker !== null) {
+                        get_select_monitor(title);
+                        get_select_alarm2(title);
+                        console.log("Selected:"+monitor_selected.StatName);
+                        console.log("Selected:"+monitor_selected.Longitude);
+                        console.log("Selected:"+monitor_selected.Latitude);
+                        var fLongitude = monitor_selected.Longitude;
+                        var fLatitude = monitor_selected.Latitude;
+                        map_MPMonitor.centerAndZoom(new BMap.Point(fLongitude,fLatitude),15);
+                        var sContent = statcode + ":" + statname;
+
+                        var infoWindow = new BMap.InfoWindow(sContent, {offset: new BMap.Size(0, -23),width:600,height:300});
+                        //infoWindow.setWidth(600);
+                        monitor_map_handle = infoWindow;
+                        get_monitor_warning_on_map();
+                        get_monitorpointinfo_on_map();
+                        marker.openInfoWindow(infoWindow);
+                        infoWindow.addEventListener("close", function () {
+                            if (monitor_map_handle == this) monitor_map_handle = null;
+                        });
+                    }
+                }
+            };
+            setTimeout(function(){delayfunction(statcode,statname);},500);
+
+
+        };
         $(".video_btn").on('click',video_btn_click);
         $(".camera_btn").on('click',camera_btn_click);
+        $(".map_btn").on('click',map_btn_click);
         $("#MonitorQueryTable_paginate").on('click',function(){
             $(".video_btn").on('click',video_btn_click);
             $(".camera_btn").on('click',camera_btn_click);
+            $(".map_btn").on('click',map_btn_click);
         });
         //$(".lock_btn").on('click',lock_btn_click);
     };
@@ -6620,7 +6665,8 @@ function query_alarm(date,type,name){
         var minute_head = result.ret.minute_head;
         var hour_head = result.ret.hour_head;
         var day_head = result.ret.day_head;
-
+        var Alarm_min = parseInt(result.ret.Alarm_min);
+        var Alarm_max = parseInt(result.ret.Alarm_max);
 
         //console.log(("#"+type+"_canvas_day"));
         //console.log(("#"+type+"_canvas_week"));
@@ -6632,7 +6678,7 @@ function query_alarm(date,type,name){
         $("#"+type+"_canvas_day").highcharts({
 
             chart: {
-                type: 'areaspline',
+                type: 'spline',
                 zoomType: 'x'
             },
             title: {
@@ -6661,7 +6707,9 @@ function query_alarm(date,type,name){
             yAxis: {
                 title: {
                     text: name
-                }
+                },
+                max:Alarm_max,
+                min:Alarm_min
             },
             tooltip: {
                 shared: true,
@@ -6688,7 +6736,7 @@ function query_alarm(date,type,name){
         $("#"+type+"_canvas_week").highcharts({
 
             chart: {
-                type: 'areaspline',
+                type: 'spline',
                 zoomType: 'x'
             },
             title: {
@@ -6717,7 +6765,9 @@ function query_alarm(date,type,name){
             yAxis: {
                 title: {
                     text: name
-                }
+                },
+                max:Alarm_max,
+                min:Alarm_min
             },
             tooltip: {
                 shared: true,
@@ -6744,7 +6794,7 @@ function query_alarm(date,type,name){
         $("#"+type+"_canvas_month").highcharts({
 
             chart: {
-                type: 'areaspline',
+                type: 'spline',
                 zoomType: 'x'
             },
             title: {
@@ -6773,7 +6823,9 @@ function query_alarm(date,type,name){
             yAxis: {
                 title: {
                     text: name
-                }
+                },
+                max:Alarm_max,
+                min:Alarm_min
             },
             tooltip: {
                 shared: true,
@@ -6807,6 +6859,8 @@ function initializeAlarmMap(){
     get_proj_point_list();
     get_monitor_alarm_list();
     get_alarm_type_list();
+    var today = new Date();
+    $("#Alarm_query_Input").val(today.Format("yyyy-MM-dd"));
     var basic_min_height = parseInt(($("#WCMonitorViewMap").css("min-height")).replace(/[^0-9]/ig,""));
     if(window.screen.availHeight/2 > basic_min_height) basic_min_height=window.screen.availHeight/2;
     $("#WCMonitorViewMap").css("min-height",basic_min_height+"px");
