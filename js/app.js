@@ -6282,8 +6282,16 @@ function query_static_warning(){
         };
         $(".video_btn").on('click',video_btn_click);
         $(".camera_btn").on('click',camera_btn_click);
-        $(".map_btn").on('click',map_btn_click);
+        $(".map_btn").on('click',map_btn_click);/*
         $("#MonitorQueryTable_paginate").on('click',function(){
+            $(".video_btn").on('click',video_btn_click);
+            $(".camera_btn").on('click',camera_btn_click);
+            $(".map_btn").on('click',map_btn_click);
+        });*/
+        $("#MonitorQueryTable").on('draw.dt',function(){
+            $(".video_btn").unbind();
+            $(".camera_btn").unbind();
+            $(".map_btn").unbind();
             $(".video_btn").on('click',video_btn_click);
             $(".camera_btn").on('click',camera_btn_click);
             $(".map_btn").on('click',map_btn_click);
@@ -8254,8 +8262,12 @@ function query_ProjUpdateStrategyList(ProjCode){
             }
             click_PointUpdateStrategyChange_commit(statcode,ifupdate,$(this));
         };
-        $(".update_change_btn").on('click',update_change_btn_click);
+        $(".update_change_btn").on('click',update_change_btn_click);/*
         $("#ProjUpdateDetailTable_paginate").on('click',function(){
+            $(".update_change_btn").on('click',update_change_btn_click);
+        });*/
+        $("#ProjUpdateDetailTable").on('draw.dt',function(){
+            $(".update_change_btn").unbind();
             $(".update_change_btn").on('click',update_change_btn_click);
         });
     };
