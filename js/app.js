@@ -1433,7 +1433,7 @@ function key_manage(){
 }
 function proj_manage(){
     clear_window();
-    write_title("项目信息","根据您的权限对项目进行添加/删除/修改等操作");
+    write_title("项目管理","根据您的权限对项目进行添加/删除/修改等操作");
     $("#ProjManageView").css("display","block");
     proj_intialize(0);
 }
@@ -2019,9 +2019,9 @@ function draw_user_table_head(){
 function get_user_level(level){
     if (level =="0") return "管理员";
     if (level =="1") return "高级用户";
-    if (level =="2") return "二级用户";
-    if (level =="3") return "三级用户";
-    if (level =="4") return "巡检员";
+    if (level =="2") return "一级用户";
+    if (level =="3") return "二级用户";
+    if (level =="4") return "三级用户";
     return "未知级别";
 }
 function draw_user_table(data){
