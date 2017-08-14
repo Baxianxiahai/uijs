@@ -19,7 +19,7 @@ var screen_saver_address=basic_address+"screensaver/screen.html";
 var weather_info="";
 function logout(){
     delCookie("Environmental.inspection.session");
-    window.location=httphead+"//"+window.location.host+basic_address+"Login.html";
+    window.location=httphead+"//"+window.location.host+basic_address+"login.html";
 
     /*
      delCookie("Environmental.inspection.session");
@@ -2858,7 +2858,7 @@ function show_new_pg_module(){
     pg_module_status = true;
 
     $("#PGPGCode_Input").val("");
-    $('#PGPGCode_Input').attr("disabled",false);
+    $('#PGPGCode_Input').attr("disabled",true);
     $("#PGPGName_Input").val("");
     $("#PGChargeMan_Input").val("");
     $("#PGTelephone_Input").val("");
@@ -2902,12 +2902,12 @@ function submit_new_pg_module(){
     var new_PGDepartment = $("#PGDepartment_Input").val();
     var new_PGAddress = $("#PGAddress_Input").val();
     var new_PGStage = $("#PGStage_Input").val();
-
+/*
     if(new_PGPGCode === null || new_PGPGCode === ""){
         $("#PGPGCode_Input").attr("placeholder","项目组号不能为空");
         $("#PGPGCode_Input").focus();
         return;
-    }
+    }*/
     if(new_PGPGName === null || new_PGPGName === ""){
         $("#PGPGName_Input").attr("placeholder","项目组名称不能为空");
         $("#PGPGName_Input").focus();
@@ -3530,7 +3530,7 @@ function show_new_proj_module(){
     project_module_status = true;
 
     $("#ProjProjCode_Input").val("");
-    $('#ProjProjCode_Input').attr("disabled",false);
+    $('#ProjProjCode_Input').attr("disabled",true);
     $("#ProjProjName_Input").val("");
     $("#ProjChargeMan_Input").val("");
     $("#ProjTelephone_Input").val("");
@@ -3561,12 +3561,12 @@ function submit_new_proj_module(){
     var new_ProjAddress = $("#ProjAddress_Input").val();
     var new_ProjProStartTime = $("#ProjProStartTime_Input").val();
     var new_ProjStage = $("#ProjStage_Input").val();
-
+/*
     if(new_ProjProjCode === null || new_ProjProjCode === ""){
         $("#ProjProjCode_Input").attr("placeholder","项目号不能为空");
         $("#ProjProjCode_Input").focus();
         return;
-    }
+    }*/
     if(new_ProjProjName === null || new_ProjProjName === ""){
         $("#ProjProjName_Input").attr("placeholder","项目名称不能为空");
         $("#ProjProjName_Input").focus();
@@ -4365,12 +4365,14 @@ function show_new_point_module(){
     point_module_status = true;
 
     $("#PointStatCode_Input").val("");
-    $('#PointStatCode_Input').attr("disabled",false);
+    $('#PointStatCode_Input').attr("disabled",true);
     $("#PointStatName_Input").val("");
     $("#PointChargeMan_Input").val("");
     $("#PointTelephone_Input").val("");
     $("#PointLongitude_Input").val("");
     $("#PointLatitude_Input").val("");
+    $('#PointLongitude_Input').attr("disabled",true);
+    $('#PointLatitude_Input').attr("disabled",true);
     $("#PointDepartment_Input").val("");
     $("#PointAddress_Input").val("");
     $("#PointCountry_Input").val("");
@@ -4415,12 +4417,12 @@ function submit_new_point_module(){
     var new_PointSquare = $("#PointSquare_Input").val();
     var new_PointProStartTime = $("#PointProStartTime_Input").val();
     var new_PointStage = $("#PointStage_Input").val();
-
+/*
     if(new_PointStatCode === null || new_PointStatCode === ""){
         $("#PointStatCode_Input").attr("placeholder","站点号不能为空");
         $("#PointStatCode_Input").focus();
         return;
-    }
+    }*/
     if(new_PointStatName === null || new_PointStatName === ""){
         $("#PointStatName_Input").attr("placeholder","站点名称不能为空");
         $("#PointStatName_Input").focus();
@@ -4440,7 +4442,7 @@ function submit_new_point_module(){
         $("#PointTelephone_Input").attr("placeholder","联系电话不能为空");
         $("#PointTelephone_Input").focus();
         return;
-    }
+    }/*
     if(new_PointLongitude === null || new_PointLongitude === ""){
         $("#PointLongitude_Input").attr("placeholder","经度不能为空");
         $("#PointLongitude_Input").focus();
@@ -4450,7 +4452,7 @@ function submit_new_point_module(){
         $("#PointLatitude_Input").attr("placeholder","纬度不能为空");
         $("#PointLatitude_Input").focus();
         return;
-    }
+    }*/
     if(new_PointDepartment === null || new_PointDepartment === ""){
         $("#PointDepartment_Input").attr("placeholder","单位名称不能为空");
         $("#PointDepartment_Input").focus();
