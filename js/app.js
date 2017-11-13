@@ -16,6 +16,7 @@ var request_head= basic_address+"request.php";
 var jump_url = basic_address+"jump.php";
 var upload_url=basic_address+"upload.php";
 var screen_saver_address=basic_address+"screensaver/screen.html";
+var show_image_url=basic_address+"imageshow/ImageShow.html";
 var weather_info="";
 function logout(){
     delCookie("Environmental.inspection.session");
@@ -8410,7 +8411,7 @@ function query_warning_handle_list(){
         var ColumnName = result.ret.ColumnName;
         var TableData = result.ret.TableData;
         //var txt = "<thead> <tr><th></th><th></th>";
-        var txt = "<thead> <tr><th></th>";
+        var txt = "<thead> <tr><th></th><th></th>";
         var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
@@ -8420,6 +8421,7 @@ function query_warning_handle_list(){
         txt = txt +"<tbody>";
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
+            txt = txt +"<td><button type='button' class='btn btn-default open_btn' OpenCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-picture ' aria-hidden='true' ></em></button></td>";
             if(TableData[i][1] == "N"){
                 txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][0]+"'>处理</a> </li></ul></td>";
             }else{
@@ -8506,6 +8508,16 @@ function query_warning_handle_list(){
             $(".alarm_action_btn").on('click',alarm_action_btn_click);
             $(".alarm_close_btn").on('click',alarm_close_btn_click);
         });
+        Openpicture_btn_click = function(){
+            var opencode = $(this).attr('OpenCode');
+            getwarningpicture(opencode);
+
+        };
+        $(".open_btn").on('click',Openpicture_btn_click);
+        $("#WarningHandleQueryTable").on('draw.dt',function(){
+            $(".open_btn").unbind();
+            $(".open_btn").on('click',Openpicture_btn_click);
+        });
     };
     JQ_get(request_head,map,GetWarningHandleListTable_callback);
 
@@ -8513,6 +8525,32 @@ function query_warning_handle_list(){
 
 
 }
+function getwarningpicture(openid){
+    var body={
+        openid:openid
+    };
+    var map={
+        action:"GetWarningImg",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var get_open_picture_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            if(result.ret.ifpicture == "true"){
+                var picture = result.ret.picture;
+                window.open("http://"+window.location.host+"/"+show_image_url+"?image="+picture+"#",'监控照片',"height=620, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+            }else{
+                show_alarm_module(false, "本次告警未能捕捉到照片", null);
+            }
+        }else {
+            show_alarm_module(true, "请重新登录！" + result.msg, null);
+        }
+    };
+    JQ_get(request_head,map,get_open_picture_callback);
+}
+
 function handle_Alarm_process(StatCode,Mobile,Action){
     var body={
         StatCode:StatCode,
