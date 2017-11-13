@@ -183,6 +183,18 @@
                         <div class="title_left" id="page_title">
                             <h3> <small></small></h3>
                         </div>
+                        <div class="title_right" id = "QueryBar">
+                            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="查询..." id="CommonQueryInput">
+                                <span class="input-group-btn">
+                                  <button class="btn btn-default" type="button" id="CommonQueryCommit">
+                                      <i class="fa fa-search"></i>
+                                  </button>
+                                </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="clearfix"></div>
@@ -2199,7 +2211,38 @@
                                         </div>
                                         <div class="row clearfix" id="WarningHandleView">
                                             <div class="col-md-12 column">
-                                                <button type="button" class="btn btn-primary" id="WarningHandleTableFlash">刷新</button>
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="input-group" >
+                                                        <span class="input-group-addon" id="WarningHandleProj" style="min-width: 100px">查询项目</span>
+                                                        <select class="form-control" placeholder="归属项目" aria-describedby="basic-addon1" id="WarningHandleProj_choice">
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="input-group" >
+                                                        <span class="input-group-addon" id="WarningHandleTime" style="min-width: 100px">查询周期</span>
+                                                        <select class="form-control" placeholder="钥匙种类" aria-describedby="basic-addon1" id="WarningHandleTime_choice">
+                                                            <option value="1">今日</option>
+                                                            <option value="7">近7天</option>
+                                                            <option value="30">近30天</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="WarningHandleWord" style="min-width: 100px">关键字</span>
+                                                        <input type="text" class="form-control" placeholder="查询关键字" aria-describedby="basic-addon1" id="WarningHandleWord_Input"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+
+                                            <div class="col-md-12 column">
+                                                <button type="button" class="btn btn-primary" id="WarningHandleTableFlash">查询</button>
                                                 <label  style="min-width: 20px"></label>
                                                 <label  style="min-width: 20px" id = "WarningHandleFlashTime"></label>
                                             </div>

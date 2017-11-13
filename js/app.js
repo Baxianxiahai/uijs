@@ -158,7 +158,7 @@ var alarm_map_handle=null;
 var alarm_array = null;
 
 //alarm handle control
-var Warning_Handle_table_initialized = true;
+var Warning_Handle_table_initialized = false;
 var if_Warning_Handle_table_initialize = false;
 
 //Export Control
@@ -183,6 +183,8 @@ var camera_unit_v;
 
 var Longitude = null;
 var Latitude = null;
+
+var global_key_word = "";
 /*
 var lineChartData = {
     labels : ["January","February","March","April","May","June","July"],
@@ -1378,7 +1380,34 @@ $(document).ready(function() {
 		$('#KeyGrantAlarm').modal('hide');
         click_key_grant_commit($(this).attr("KeyId"),$(this).attr("UserId"));
     });
+    $("#CommonQueryCommit").on('click',function(){
+        if(global_key_word == $("#CommonQueryInput").val()) return;
+        global_key_word = $("#CommonQueryInput").val();
+        switch (CURRENT_URL){
+            case "UserManage":
+                user_intialize(0);
+                break;
+            case "KeyManage":
+                key_intialize(0);
+                break;
+            case "PGManage":
+                pg_intialize(0);
+                break;
+            case "ProjManage":
+                proj_intialize(0);
+                break;
+            case "MPManage":
+                point_intialize(0);
+                break;
+            case "DevManage":
+                dev_intialize(0);
+                break;
+            default:
 
+                break;
+        }
+        return;
+    });
     //alert($(window).height());
     //alert($(window).width());
     clear_window();
@@ -1393,6 +1422,15 @@ $(document).ready(function() {
     $(window).resize();
 
 });
+
+function show_searchbar(){
+    global_key_word = "";
+    $("#CommonQueryInput").val("");
+    $("#QueryBar").css("display","block");
+}
+function hide_searchbar(){
+    $("#QueryBar").css("display","none");
+}
 function calculate_row(){
     var screen_high = $(window).height();
     var add_row = parseInt( ($(window).height()-650)/100);
@@ -1417,31 +1455,35 @@ function user_manager(){
     clear_window();
     write_title("用户管理","根据您的权限对用户进行添加/删除/修改等操作");
     $("#UserManageView").css("display","block");
-
+    show_searchbar();
     if(!user_initial){ user_intialize(0);}
 }
 function pg_manage(){
     clear_window();
     write_title("项目组管理","根据您的权限对项目组进行添加/删除/修改等操作");
     $("#PGManageView").css("display","block");
+    show_searchbar();
     if(!pg_initial){ pg_intialize(0);}
 }
 function key_manage(){
     clear_window();
     write_title("钥匙管理","根据您的权限对项目组进行添加/删除/修改等操作");
     $("#KeyManageView").css("display","block");
+    show_searchbar();
     if(!key_initial){ key_intialize(0);}
 }
 function proj_manage(){
     clear_window();
     write_title("项目管理","根据您的权限对项目进行添加/删除/修改等操作");
     $("#ProjManageView").css("display","block");
+    show_searchbar();
     proj_intialize(0);
 }
 function para_manage(){
     clear_window();
     write_title("参数管理","您可以在这里升级您的设备版本");
     $("#ParaManageView").css("display","block");
+    hide_searchbar();
     if(!parameter_initial)parameter_initialize();
     //$("#Undefined").css("display","block");
 }
@@ -1449,6 +1491,7 @@ function mp_manage(){
     clear_window();
     write_title("站点管理","根据您的权限对站点进行配置");
     $("#MPManageView").css("display","block");
+    show_searchbar();
     //需求修改，项目变成站点，变量名字不改了
     if(!point_initial){ point_intialize(0);}
 }
@@ -1456,6 +1499,7 @@ function dev_manage(){
     clear_window();
     write_title("设备管理","根据您的权限对设备进行配置");
     $("#DevManageView").css("display","block");
+    show_searchbar();
     if(!device_initial){ dev_intialize(0);}
 }
 function mp_monitor(){
@@ -1463,18 +1507,22 @@ function mp_monitor(){
     write_title("地图监控","在地图上对站点进行监控");
     $("#MPMonitorView").css("display","block");
     console.log("into map:"+map_initialized);
-    if(!map_initialized)initializeMap();
+    hide_searchbar();
+    //if(!map_initialized)initializeMap();
+    initializeMap();
 }
 function mp_monitor_table(){
     clear_window();
     write_title("站点聚合","实时刷新");
     $("#MPMonitorTableView").css("display","block");
+    hide_searchbar();
     if(!Monitor_table_initialized)initialize_warning_table();
 
 }
 function mp_monitor_card(){
     clear_window();
     write_title("站点列块","点选设备卡片以获得详细信息");
+    hide_searchbar();
     $("#MPMonitorCardView").css("display","block");
 
     //if(!map_initialized)initializeMap();
@@ -1483,6 +1531,7 @@ function mp_static_monitor_table(){
     clear_window();
     write_title("站点聚合","请手工刷新");
     $("#MPMonitorStaticTableView").css("display","block");
+    hide_searchbar();
     query_static_warning();
     //if(!Monitor_table_initialized)initialize_warning_table();
 
@@ -1491,17 +1540,20 @@ function warning_check(){
     clear_window();
     write_title("告警查看","可以导出报表");
     $("#WarningCheckView").css("display","block");
+    hide_searchbar();
     if(!alarm_map_initialized)initializeAlarmMap();
 }
 function warning_handle(){
     clear_window();
     $("#WarningHandleView").css("display","block");
     write_title("告警处理","请查看报表");
-    query_warning_handle_list();
+    hide_searchbar();
+    //query_warning_handle_list();
+    warning_handle_initialize();
 }
 function desktop(){
     clear_window();
-
+    hide_searchbar();
     write_title("欢迎","请选择您需要的功能");
     $("#Desktop").css("display","block");
 
@@ -1513,115 +1565,137 @@ function desktop(){
 function Inst_Conf(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Inst_Read(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Inst_Design(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Inst_Control(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Inst_Snapshot(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Inst_Video(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Audit_Target(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Audit_Stability(){
     clear_window();
     write_title("稳定性统计","请手工刷新");
+    hide_searchbar();
     $("#AuditStabilityView").css("display","block");
     query_audit_stability();
 }
 function Audit_Availability(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Audit_Error(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Audit_Quality(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Geo_InfoQuery(){
     clear_window();
     CURRENT_URL="Undefined";
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Geo_TrendAnalysis(){
     clear_window();
     CURRENT_URL="Undefined";
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Geo_DisaterForecast(){
     clear_window();
     CURRENT_URL="Undefined";
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Geo_EmergencyDirect(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Geo_DiffusionAnalysis(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Work_flowDesign(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Order_Management(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Unloading_Management(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function Order_Audit(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function AD_Conf(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 function WEB_Conf(){
     clear_window();
     write_title("施工中","");
+    hide_searchbar();
     $("#Undefined").css("display","block");
 }
 /*
@@ -1697,7 +1771,8 @@ function get_project_pg_list(){
 function get_user_table(start,length){
     var body = {
         startseq: start,
-        length:length
+        length:length,
+        keyword: global_key_word
     };
     var map={
         action:"UserTable",
@@ -2412,7 +2487,8 @@ function get_project_list(){
 function get_pg_table(start,length){
     var body={
         startseq: start,
-        length:length
+        length:length,
+        keyword: global_key_word
     };
     var map={
         action:"PGTable",
@@ -3033,7 +3109,8 @@ function submit_mod_pg_module(){
 function get_proj_table(start,length){
     var body={
         startseq: start,
-        length:length
+        length:length,
+        keyword: global_key_word
     };
     var map={
         action:"ProjTable",
@@ -3794,7 +3871,8 @@ function get_update_dev_list(){
 function get_point_table(start,length){
 	var body={
         startseq: start,
-        length:length
+        length:length,
+        keyword: global_key_word
 	};
     var map={
         action:"PointTable",
@@ -4631,7 +4709,8 @@ function get_proj_point_list(){
 function get_dev_table(start,length){
 	var body={
         startseq: start,
-        length:length
+        length:length,
+        keyword: global_key_word
 	};
     var map={
         action:"DevTable",
@@ -7026,6 +7105,7 @@ function get_alarmpointinfo_on_map(){
 
 }
 function alarm_addMarker(point){
+    if(CURRENT_URL != "WarningCheck") return;
     if(alarm_map_list === null)return;
     // 创建图标对象
     var myIcon = new BMap.Icon("./image/map-marker-ball-pink-small.png", new BMap.Size(32, 32),{
@@ -8278,10 +8358,42 @@ function query_ProjUpdateStrategyList(ProjCode){
 }
 
 
+function build_warning_handle_proj_choice(){
+    if(project_list === null) return;
+    var txt ="";
+    if(project_list === null) project_list = [];
+    for( i=0;i<project_list.length;i++){
+        txt = txt +"<option value="+project_list[i].id+">"+project_list[i].name+"</option>";
+    }
+    $("#WarningHandleProj_choice").append(txt);
+}
+function warning_handle_initialize(){
+    if(Warning_Handle_table_initialized === false){
+        if(project_list === null) {
+            get_project_list();
+            window.setTimeout(build_warning_handle_proj_choice, wait_time_long);
+        }else{
+            build_warning_handle_proj_choice();
+        }
+        Warning_Handle_table_initialized = true;
+    }
+
+
+}
+
 function query_warning_handle_list(){
     if(Warning_Handle_table_initialized !== true) return;
+    var Query_project = $("#WarningHandleProj_choice").val();
+    var Query_time = $("#WarningHandleTime_choice").val();
+    var Query_word = $("#WarningHandleWord_Input").val();
+    var condition = {
+        ProjCode:Query_project,
+        Time:Query_time,
+        KeyWord:Query_word
+    };
     var map={
         action:"GetWarningHandleListTable",
+        body:condition,
         type:"query",
         user:usr.id
     };
@@ -8298,7 +8410,7 @@ function query_warning_handle_list(){
         var ColumnName = result.ret.ColumnName;
         var TableData = result.ret.TableData;
         //var txt = "<thead> <tr><th></th><th></th>";
-        var txt = "<thead> <tr>";
+        var txt = "<thead> <tr><th></th>";
         var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
@@ -8308,7 +8420,12 @@ function query_warning_handle_list(){
         txt = txt +"<tbody>";
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
-            //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
+            if(TableData[i][1] == "N"){
+                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][0]+"'>处理</a> </li></ul></td>";
+            }else{
+                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_close_btn' StatCode='"+TableData[i][0]+"'>关闭</a> </li></ul></td>";
+
+            }
             //txt = txt +"<td><button type='button' class='btn btn-default lock_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-lock ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
             //console.log("StateCode="+TableData[i][0]);
             for(var j=0;j<TableData[i].length;j++){
@@ -8363,9 +8480,98 @@ function query_warning_handle_list(){
 
         } );
         if_Warning_Handle_table_initialize = true;
+        alarm_action_btn_click = function(){
+            var statcode = $(this).attr('StatCode');
+            $("#AlarmHandleUpdateCommit").attr("StatCode",statcode);
+            var alarm_statname = get_point_name(statcode);
+            $("#AlarmStatName_Input").val(alarm_statname);
+            modal_middle($('#AlarmHandleProcess'));
+            $('#AlarmHandleProcess').modal('show');
+        };
+        $(".alarm_action_btn").on('click',alarm_action_btn_click);
+        alarm_close_btn_click = function(){
+            var statcode = $(this).attr('StatCode');
+            handle_Alarm_close(statcode);
+        };
+        $(".alarm_close_btn").on('click',alarm_close_btn_click);
+        /*
+         $("#WarningHandleQueryTable_paginate").on('click',function(){
+         $(".alarm_action_btn").on('click',alarm_action_btn_click);
+         $(".alarm_close_btn").on('click',alarm_close_btn_click);
+         });*/
+
+        $("#WarningHandleQueryTable").on('draw.dt',function(){
+            $(".alarm_action_btn").unbind();
+            $(".alarm_close_btn").unbind();
+            $(".alarm_action_btn").on('click',alarm_action_btn_click);
+            $(".alarm_close_btn").on('click',alarm_close_btn_click);
+        });
     };
     JQ_get(request_head,map,GetWarningHandleListTable_callback);
 
+
+
+
+}
+function handle_Alarm_process(StatCode,Mobile,Action){
+    var body={
+        StatCode:StatCode,
+        Mobile:Mobile,
+        Action:Action
+    };
+    var map={
+        action:"AlarmHandle",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+    var HandleAlarmProcess_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "工单下发成功" , null);
+                query_warning_handle_list();
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "工单下发失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,HandleAlarmProcess_callback);
+}
+function handle_Alarm_close(StatCode){
+    var body={
+        StatCode:StatCode
+    };
+    var map={
+        action:"AlarmClose",
+        body:body,
+        type:"mod",
+        user:usr.id
+    };
+    var HandleAlarmClose_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            setTimeout(function() {
+                show_alarm_module(false, "告警关闭成功" , null);
+                query_warning_handle_list();
+            },500);
+        }else{
+            setTimeout(function() {
+                show_alarm_module(true, "告警关闭失败" + result.msg, null);
+            },500);
+        }
+    };
+    JQ_get(request_head,map,HandleAlarmClose_callback);
+}
+function AlarmHandleUpdateCommit_button_commit(){
+    var statcode = $("#AlarmHandleUpdateCommit").attr("StatCode");
+    var mobile = $("#AlarmHandleMobile_Input").val();
+    var action = $("#AlarmHandleAction_Input").val();
+    if(mobile===""||action ==="") return;
+    handle_Alarm_process(statcode,mobile,action);
+    $('#AlarmHandleProcess').modal('hide');
 }
 function get_camera_and_video_web(statcode,ifcamera,ifvideo){
     var body = {
@@ -8384,7 +8590,8 @@ function get_camera_and_video_web(statcode,ifcamera,ifvideo){
                 window.open(result.ret.camera,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
             }
             if(ifvideo) {
-                window.open(result.ret.video, '监控录像', "height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+                //window.open(result.ret.video, '监控录像', "height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+                window.location.href = result.ret.video;
             }
         }else {
             show_alarm_module(true, "请重新登录！" + result.msg, null);
