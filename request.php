@@ -4474,7 +4474,7 @@ RESPONSE:
 			);
 		*/
 		$column = 16;
-		$row = 40;
+		$row = 39;
 		$column_name = array();
 		$row_content = array();
 		for( $i=0;$i<$column;$i++){
@@ -4489,7 +4489,8 @@ RESPONSE:
 			}else{
 				array_push($one_row,"N");
 			}
-			for($j=0;$j<($column-6);$j++) array_push($one_row,rand(10,110));
+			array_push($one_row,(string)($i+2));
+			for($j=0;$j<($column-7);$j++) array_push($one_row,rand(10,110));
 
 			//one_row.push("地址"+(i+1)+"xxxxx路"+(i+1)+"xxxxx号");
 			array_push($one_row,"地址".((string)($i+1))."xxxxx路".((string)($i+1))."xxxxx号");

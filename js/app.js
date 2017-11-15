@@ -1381,6 +1381,10 @@ $(document).ready(function() {
 		$('#KeyGrantAlarm').modal('hide');
         click_key_grant_commit($(this).attr("KeyId"),$(this).attr("UserId"));
     });
+
+    $("#AlarmHandleUpdateCommit").on('click',function(){
+        AlarmHandleUpdateCommit_button_commit();
+    });
     $("#CommonQueryCommit").on('click',function(){
         if(global_key_word == $("#CommonQueryInput").val()) return;
         global_key_word = $("#CommonQueryInput").val();
@@ -8423,9 +8427,9 @@ function query_warning_handle_list(){
             txt = txt +"<tr>";
             txt = txt +"<td><button type='button' class='btn btn-default open_btn' OpenCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-picture ' aria-hidden='true' ></em></button></td>";
             if(TableData[i][1] == "N"){
-                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][0]+"'>处理</a> </li></ul></td>";
+                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][2]+"'>处理</a> </li></ul></td>";
             }else{
-                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_close_btn' StatCode='"+TableData[i][0]+"'>关闭</a> </li></ul></td>";
+                txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_close_btn' StatCode='"+TableData[i][2]+"'>关闭</a> </li></ul></td>";
 
             }
             //txt = txt +"<td><button type='button' class='btn btn-default lock_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-lock ' aria-hidden='true' ></em></button></td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
@@ -8525,9 +8529,9 @@ function query_warning_handle_list(){
 
 
 }
-function getwarningpicture(openid){
+function getwarningpicture(warningid){
     var body={
-        openid:openid
+        warningid:warningid
     };
     var map={
         action:"GetWarningImg",
