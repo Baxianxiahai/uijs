@@ -1581,6 +1581,8 @@
 
                                                 </table>
                                             </div>
+
+                                            <div class="clearfix"></div>
                                             <HR class="HR-map" SIZE=3/>
                                             <!--div class="col-md-4 col-sm-6 col-xs-12 column" -->
                                             <div class="col-md-12 col-sm-12 col-xs-12 column" >
@@ -2120,6 +2122,8 @@
                                             <div class="col-md-12 col-sm-12 col-xs-12 column" >
                                                 <div id="WCMonitorViewMap" class="baidu-maps-mini"></div>
                                             </div>
+
+                                            <div class="clearfix"></div>
                                             <HR class="HR-map" SIZE=3/>
                                             <div class="col-md-4 col-sm-6 col-xs-12 column" >
                                                 <div class="input-group ">
@@ -4359,7 +4363,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="VideoSelectionModule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+    <div class="modal fade" id="VideoSelectionModule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
         <div class="modal-dialog" role="document" style="width:100%">
             <div class="modal-content">
                 <div class="modal-header">
@@ -4426,6 +4430,8 @@
                         <div class="col-md-12 col-sm-12 col-xs-12 column" >
                             <button type="button" class="btn btn-primary" id="ModuleVCRshow">播放</button>
                         </div>
+
+                        <div class="clearfix"></div>
                         <HR class="HR-map" SIZE=3/>
 
                         <div class="col-md-12 col-sm-12 col-xs-12 column">
@@ -4466,6 +4472,60 @@
                         </div>
                         <div class="clearfix"></div>
                     </div>
+                    <!--div class="col-md-12 col-sm-12 col-xs-12 column " >
+
+                    </div-->
+
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="RTSPVideoModule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="RTSPVideoTitle">历史视频查看</h4>
+                </div>
+                <div class="modal-body" id="RTSPVideoContent" >
+                    <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                        <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                            <div class="input-group ">
+                                <span class="input-group-addon" id="RTSPHistoryStatName" style="min-width: 100px">站点名称</span>
+                                <input type="text" class="form-control" placeholder="站点代码" aria-describedby="basic-addon1" id="RTSPHistoryStatName_Input" disabled="disabled"/>
+                            </div>
+                            <div class="input-group ">
+                                <span class="input-group-addon" id="RTSPHistoryAlarmTime" style="min-width: 100px">告警时间</span>
+                                <input type="text" class="form-control" placeholder="告警时间" aria-describedby="basic-addon1" id="RTSPHistoryAlarmTime_Input" disabled="disabled"/>
+                            </div>
+                            <div class="input-group ">
+                                <span class="input-group-addon" id="RTSPHistoryAlarmReason" style="min-width: 100px">告警时间</span>
+                                <input type="text" class="form-control" placeholder="告警原因" aria-describedby="basic-addon1" id="RTSPHistoryAlarmReason_Input" disabled="disabled"/>
+                            </div>
+                        </div>
+                        <HR class="HR-map" SIZE=3/>
+                        <div class="x_content col-md-12 col-sm-12 col-xs-12 column" style="text-align : center;margin:auto;">
+                            <div class="row grid_slider" style="margin:auto;">
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="margin:auto;">
+                                    <p>时间调节，每次播放限制为一分钟，可以调节滑块选择告警点前后最大10分钟的播放点</p>
+                                    <input type="text" class="rtspzoom" value="" id="rtsp_zoom" style="margin:auto;"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                            <button type="button" class="btn btn-primary" id="RTSPHistoryshow">播放</button>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                    </div>
+
                     <!--div class="col-md-12 col-sm-12 col-xs-12 column " >
 
                     </div-->

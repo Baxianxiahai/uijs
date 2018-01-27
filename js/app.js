@@ -344,6 +344,20 @@ $(document).ready(function() {
             move_camera(statcode,vorh,value);
         }
     });
+    $(".rtspzoom").ionRangeSlider({
+        min: -10,
+        max: 10,
+        from:0,
+        grid: true,
+        force_edges: true,
+        /*
+        onFinish:function(data){
+            var statcode = $("#VideoModuleStatCode_Input").val();
+            var vorh = "z";
+            var value = data.from;
+            move_camera(statcode,vorh,value);
+        }*/
+    });
 });
 function write_title(title,sub_titile){
     $("#page_title").empty();
@@ -1412,6 +1426,14 @@ $(document).ready(function() {
                 break;
         }
         return;
+    });
+
+    //RTSPHistoryshow
+    $("#RTSPHistoryshow").on('click',function(){
+        console.log($("#rtsp_zoom").val());
+        console.log($(this).attr("data-url"));
+        //window.location.href = $(this).attr("data-url");
+
     });
     //alert($(window).height());
     //alert($(window).width());
@@ -8055,7 +8077,8 @@ function show_alarm_module(ifalarm,text,callback){
         emptyfunction = function(){};
         $('#UserAlarm').on('hide.bs.modal',emptyfunction);
     }else{
-        $('#UserAlarm').on('hide.bs.modal',function(){ setTimeout(callback, 500);});
+        var countevent = 0 ;
+        $('#UserAlarm').on('hide.bs.modal',function(){ if(++countevent==1){setTimeout(callback, 500);}});
     }
 }
 
@@ -8415,7 +8438,7 @@ function query_warning_handle_list(){
         var ColumnName = result.ret.ColumnName;
         var TableData = result.ret.TableData;
         //var txt = "<thead> <tr><th></th><th></th>";
-        var txt = "<thead> <tr><th></th><th></th>";
+        var txt = "<thead> <tr><th></th><th></th><th></th>";
         var i;
         for( i=0;i<ColumnName.length;i++){
             txt = txt +"<th>"+ColumnName[i]+"</th>";
@@ -8425,6 +8448,7 @@ function query_warning_handle_list(){
         txt = txt +"<tbody>";
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
+            txt = txt +"<td><button type='button' class='btn btn-default rtsp_play_btn' OpenCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button></td>";
             txt = txt +"<td><button type='button' class='btn btn-default open_btn' OpenCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-picture ' aria-hidden='true' ></em></button></td>";
             if(TableData[i][1] == "N"){
                 txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'alarm_action_btn' StatCode='"+TableData[i][2]+"'>处理</a> </li></ul></td>";
@@ -8517,10 +8541,20 @@ function query_warning_handle_list(){
             getwarningpicture(opencode);
 
         };
+        Rtsp_play_btn_click = function(){
+            var opencode = $(this).attr('OpenCode');
+            getrtsphistorylist(opencode);
+            //window.location.href = "openIE:http://127.0.0.1/dist/middle.html";
+            //window.open("openIE:www.baidu.com");
+
+        };
         $(".open_btn").on('click',Openpicture_btn_click);
+        $(".rtsp_play_btn").on('click',Rtsp_play_btn_click);
         $("#WarningHandleQueryTable").on('draw.dt',function(){
             $(".open_btn").unbind();
             $(".open_btn").on('click',Openpicture_btn_click);
+            $(".rtsp_play_btn").unbind();
+            $(".rtsp_play_btn").on('click',Rtsp_play_btn_click);
         });
     };
     JQ_get(request_head,map,GetWarningHandleListTable_callback);
@@ -8746,4 +8780,30 @@ function get_city(Latitude,Longitude){
         //console.log("favorate city is "+usr_favorate_city);
         get_pm(usr_favorate_city);
     });
+}
+
+function getrtsphistorylist(alarmcode){
+    var body={
+        alarmcode:alarmcode
+    };
+    var map={
+        action:"GetHistoryRTSP",
+        body:body,
+        type:"query",
+        user:usr.id
+    };
+    var get_rtsp_history_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            $("#RTSPHistoryStatName_Input").val(result.ret.StatName);
+            $("#RTSPHistoryAlarmTime_Input").val(result.ret.AlarmDate);
+            $("#RTSPHistoryAlarmReason_Input").val(result.ret.AlarmReason);
+            $("#RTSPHistoryshow").attr("data-url",result.ret.rtspurl);
+            modal_middle($('#RTSPVideoModule'));
+            $('#RTSPVideoModule').modal('show') ;
+        }else {
+            show_alarm_module(true, "请重新登录！" + result.msg, null);
+        }
+    };
+    JQ_get(request_head,map,get_rtsp_history_callback);
 }

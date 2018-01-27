@@ -4815,6 +4815,46 @@ RESPONSE:
     		);
     		$jsonencode = _encode($retval);
     		echo $jsonencode; break;
+    case "GetHistoryRTSP":
+        /*
+        REQUEST:
+            var body={
+                alarmcode:code
+            }
+            var map={
+                action:"GetHistoryRTSP",
+                body:body,
+                type:"query",
+                user:user
+            };
+        RESPONSE:
+
+            $body = array(
+                        'StateCode'=>'true',
+                        'picture'=> $install_path."/screensaver/assets/img/test".(string)$i.".jpg"
+                    );
+            $retval=array(
+                'status'=>'true',
+                'auth'=>'true',
+                'ret'=>$body,
+                'msg'=>'login successfully'
+            );
+        */
+        $body = array(
+                'StatCode'=>'123456',
+                'StatName'=>'测试站点',
+                'AlarmReason'=>'噪音',
+                'rtspurl'=> "www.baidu.com",
+                'AlarmDate'=>"11/12/13 11:12:13"
+        );
+        $retval=array(
+        'status'=>'true',
+        'auth'=>'true',
+        'ret'=>$body,
+        'msg'=>''
+        );
+        $jsonencode = _encode($retval);
+        echo $jsonencode; break;
 	default:
 	break;
 }
