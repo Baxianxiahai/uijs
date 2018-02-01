@@ -1430,9 +1430,21 @@ $(document).ready(function() {
 
     //RTSPHistoryshow
     $("#RTSPHistoryshow").on('click',function(){
-        console.log($("#rtsp_zoom").val());
-        console.log($(this).attr("data-url"));
-        //window.location.href = $(this).attr("data-url");
+        //console.log($("#rtsp_zoom").val());
+        //console.log($(this).attr("data-url"));
+
+
+
+        var dateRTSP = new Date($("#RTSPHistoryAlarmTime_Input").val());
+        dateRTSP = date_addminutes(dateRTSP,parseInt($("#rtsp_zoom").val()));
+        var alarmstart = dateRTSP.Format("yyyyMMddThhmmss");
+
+        dateRTSP = date_addminutes(dateRTSP,1);
+
+        var alarmend = dateRTSP.Format("yyyyMMddThhmmss");
+        var href = $(this).attr("data-url")+"?starttime="+alarmstart+"Z&endtime="+alarmend+"Z";
+        console.log(href);
+        window.location.href = href;
 
     });
     //alert($(window).height());
@@ -8666,6 +8678,7 @@ function get_camera_and_video_web(statcode,ifcamera,ifvideo){
                 window.open(result.ret.camera,'监控录像',"height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
             }
             if(ifvideo) {
+
                 //window.open(result.ret.video, '监控录像', "height=768, width=1024, top=0, left=0,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
                 window.location.href = result.ret.video;
             }

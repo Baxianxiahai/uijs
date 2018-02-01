@@ -5,6 +5,11 @@
 function log(str){
     //console.log(str);
 }
+function date_addminutes(date,minutes){
+    var datelocal = date;
+    datelocal.setMinutes(datelocal.getMinutes() + minutes, datelocal.getSeconds(), 0);
+    return datelocal;
+}
 function date_compare_today(date){
     var temp = date.split("-");
     var input = new Date(parseInt(temp[0]),parseInt(temp[1])-1,parseInt(temp[2])-1);

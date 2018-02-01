@@ -4844,7 +4844,7 @@ RESPONSE:
                 'StatCode'=>'123456',
                 'StatName'=>'测试站点',
                 'AlarmReason'=>'噪音',
-                'rtspurl'=> "www.baidu.com",
+                'rtspurl'=> "http://www.baidu.com",
                 'AlarmDate'=>"11/12/13 11:12:13"
         );
         $retval=array(
