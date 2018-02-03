@@ -370,7 +370,16 @@ function binb2b64(binarray) {
     }
     return str;
 }
-
+function randomNum(minNum,maxNum){
+    switch(arguments.length){
+        case 1:
+            return parseInt(Math.random()*minNum+1,10);
+        case 2:
+            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+        default:
+            return 0;
+    }
+}
 /*
 exports.date_compare_today=date_compare_today;
 exports.date_compare=date_compare;

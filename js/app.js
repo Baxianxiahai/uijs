@@ -12,6 +12,7 @@ var wait_time_long =3000;
 var wait_time_middle = 1000;
 var wait_time_short= 500;
 var cycle_time = 60000;
+var show_time = 15000;
 var request_head= basic_address+"request.php";
 var jump_url = basic_address+"jump.php";
 var upload_url=basic_address+"upload.php";
@@ -39,7 +40,7 @@ function screen_windows(){
 }
 //
 
-
+var ifPPTshow=false;
 var usr;
 usr = "";
 var admin="";
@@ -481,7 +482,7 @@ function get_user_information(){
             get_user_message();
             get_user_image();
             //hyj add in 20160926 for server very slow
-            get_monitor_list();
+            //get_monitor_list();
             nav_check();
             //get_pm(usr.city);
             get_sensor_list();
@@ -490,6 +491,7 @@ function get_user_information(){
             //getfavoritelist();
             hide_menu();
             setTimeout(mp_monitor,wait_time_middle);
+            getshowaction();
         }
 	};
 	JQ_get(request_head,map,get_user_information_callback);
@@ -567,6 +569,7 @@ $(document).ready(function() {
     var monitor_handle= setInterval(get_monitor_warning_on_map, cycle_time);
     var monitor_table_handle= setInterval(query_warning, cycle_time);
     var monitor_alarm_handle= setInterval(alarm_cycle, cycle_time);
+    var monitor_PPT_handle= setInterval(PPTshow, show_time);
     PageInitialize();
     $("#menu_logout").on('click',function(){
         logout();
@@ -5389,6 +5392,8 @@ function get_monitor_list(){
             return;
         }
         monitor_map_list = result.ret;
+        addMarker();
+        build_alarm_tabs2();
 	};
 	JQ_get(request_head,map,get_monitor_list_callback);
 	/*
@@ -5546,13 +5551,7 @@ function monitor_lock(){
     }
 }
 function initializeMap(){
-    //hyj add 20170526
-    get_project_list();
-    get_proj_point_list();
-    get_monitor_alarm_list();
-    get_alarm_type_list();
-    //end hyj add 20170526
-    get_monitor_list();
+
     var today = new Date();
 
     $("#Alarm_query_Input2").val(today.Format("yyyy-MM-dd"));
@@ -5578,15 +5577,22 @@ function initializeMap(){
         map_MPMonitor.centerAndZoom(usr.city,12);
     }
     // hyj this will not be a problem because the bmap initialization will cost several seconds.
-    window.setTimeout(addMarker, wait_time_long);
+    //window.setTimeout(addMarker, wait_time_long);
     //build_fast_guild();
+    //hyj add 20170526
+    get_project_list();
+    get_proj_point_list();
+    get_monitor_alarm_list();
+    get_alarm_type_list();
+    //end hyj add 20170526
+    get_monitor_list();
     getfavoritelist();
     //addMarker();
     //hyj add 20170526
     //console.log("before into tab2:");
     //console.log("before into tab2:"+alarm_type_list);
     //window.setTimeout(alarm_addMarker2, wait_time_long);
-    window.setTimeout(build_alarm_tabs2, wait_time_long);
+    //window.setTimeout(build_alarm_tabs2, wait_time_long);
     //end hyj add 20170526
     map_initialized=true;
     //$(window).resize();
@@ -8819,4 +8825,45 @@ function getrtsphistorylist(alarmcode){
         }
     };
     JQ_get(request_head,map,get_rtsp_history_callback);
+}
+
+function getshowaction(){
+    var map={
+        action:"GetShowAction",
+        type:"query",
+        user:usr.id
+    };
+    var get_show_action_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            if(result.ret ==="true") ifPPTshow= true;
+        }else {
+            show_alarm_module(true, "请重新登录！" + result.msg, null);
+        }
+    };
+    JQ_get(request_head,map,get_show_action_callback);
+}
+
+function PPTshow(){
+    if(ifPPTshow === false) return;
+    if(mark_MPMonitor_List.length ===0) return;
+    //console.log("click map");
+    var marklocal = mark_MPMonitor_List[randomNum(0,mark_MPMonitor_List.length-1)];
+
+    get_select_monitor(marklocal.getTitle());
+    //hyj add for 20170526
+    get_select_alarm2(marklocal.getTitle());
+    //console.log("Selected:"+monitor_selected.StatName);
+    var sContent = marklocal.getTitle();
+    var infoWindow = new BMap.InfoWindow(sContent,{offset:new BMap.Size(0,-23),width:600,height:300});
+    //infoWindow.setWidth(600);
+    //infoWindow.setHeight(500);
+    monitor_map_handle = infoWindow;
+    get_monitor_warning_on_map();
+    get_monitorpointinfo_on_map();
+    marklocal.openInfoWindow(infoWindow);
+    infoWindow.addEventListener("close",function(){
+        if(monitor_map_handle == marklocal) monitor_map_handle = null;
+    });
+
 }

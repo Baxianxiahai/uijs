@@ -4855,6 +4855,21 @@ RESPONSE:
         );
         $jsonencode = _encode($retval);
         echo $jsonencode; break;
+    case "GetShowAction":
+    /*
+        $component = array(
+        ""
+        );
+        $length = count($component);
+        $key = rand(0,$length);*/
+        $retval=array(
+            'status'=>'true',
+            'auth'=>'true',
+            'ret'=>'true',
+            'msg'=>''
+        );
+        $jsonencode = _encode($retval);
+        echo $jsonencode; break;
 	default:
 	break;
 }
