@@ -1591,25 +1591,38 @@
                                                     <input type="text" class="form-control" placeholder="请在地图上选择一个地点" aria-describedby="basic-addon1" id="VideoStatCode_Input" disabled="disabled"/>
                                                 </div>
                                                 <HR class="HR-map" SIZE=3/-->
-                                                <div class="col-md-4 col-sm-6 col-xs-12 column" >
+                                                <div class="col-md-3 col-sm-6 col-xs-12 column" >
                                                     <div class="input-group ">
                                                         <span class="input-group-addon" id="WCStatCode2" style="min-width: 100px">选中地点</span>
                                                         <input type="text" class="form-control" placeholder="请在地图上选择一个地点" aria-describedby="basic-addon1" id="WCStatCode_Input2" disabled="disabled"/>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4 col-sm-6 col-xs-12 column" >
+
+                                                <div class="col-md-3 col-sm-6 col-xs-12 column" >
                                                     <div class="form-group " style="height:29px">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon"  style="min-width: 100px">数据类型</span>
+                                                                <select class="form-control" placeholder="数据类型" aria-describedby="basic-addon1" id="Alarm_query_choice">
+                                                                    <option value="0">当前</option>
+                                                                    <option value="1">历史</option>
+                                                                </select>
+                                                            </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-md-3 col-sm-6 col-xs-12 column" >
+                                                    <div class="form-group " style="height:29px;display:none" id="Alarm_date_button" >
                                                         <div class="input-group date form_date col-md-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
                                                             <div class="input-group">
                                                                 <div class="input-group-addon">选择日期</div>
                                                                 <input class="form-control" size="16" type="text" value=""  placeholder="选择日期" id="Alarm_query_Input2" disabled="disabled" style="min-width: 106px">
-                                                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                                <span class="input-group-addon" ><span class="glyphicon glyphicon-calendar"></span></span>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                 </div>
-                                                <div class="col-md-4 col-sm-12 col-xs-12 column" >
+                                                <div class="col-md-3 col-sm-12 col-xs-12 column" >
                                                     <button type="button" class="btn btn-primary pull-right" id="AlarmQueryCommit2">确认</button>
                                                     <label class="pull-right" style="min-width: 20px"></label>
                                                     <button type="button" class="btn btn-primary pull-right" id="AlarmExport2">导出</button>
@@ -1676,6 +1689,46 @@
                                                             321
                                                             <canvas id="1_canvas_month2" class="Alarm_Canvas"></canvas>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 col-sm-12 col-xs-12 column" id="Alarm_chart_realtime_view2">
+                                                    <ul class="nav nav-tabs" id = "Alarm_chart_realtime_view_nav2">
+                                                        <!--li role="presentation" class="active" id="Warning_Noise_tab2"><a href="#Warning_Noise" data-toggle="tab">噪声</a></li-->
+                                                        <li class="dropdown">
+                                                            <a href="#" id="Warning_0_tab2" class="dropdown-toggle"
+                                                               data-toggle="dropdown">噪声 <b class="caret"></b>
+                                                            </a>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="Warning_0_tab">
+                                                                <li><a href="#Warning_0_tab_day" class="active" tabindex="-1" data-toggle="tab">
+                                                                    分钟报表（日）</a>
+                                                                </li>
+                                                                <li><a href="#Warning_0_tab_week" tabindex="-1" data-toggle="tab">
+                                                                    小时报表（周）</a>
+                                                                </li>
+                                                                <li><a href="#Warning_0_tab_month" tabindex="-1" data-toggle="tab">
+                                                                    日报表（30天）</a>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="dropdown">
+                                                            <a href="#" id="Warning_1_tab2" class="dropdown-toggle"
+                                                               data-toggle="dropdown">扬尘 <b class="caret"></b>
+                                                            </a>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="Warning_1_tab">
+                                                                <li><a href="#Warning_1_tab_day" tabindex="-1" data-toggle="tab">
+                                                                    分钟报表（日）</a>
+                                                                </li>
+                                                                <li><a href="#Warning_1_tab_week" tabindex="-1" data-toggle="tab">
+                                                                    小时报表（周）</a>
+                                                                </li>
+                                                                <li><a href="#Warning_1_tab_month" tabindex="-1" data-toggle="tab">
+                                                                    日报表（30天）</a>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+
+                                                    </ul>
+                                                    <div id="Alarm_Chart_realtime_content2" class="tab-content" width="100%">
                                                     </div>
                                                 </div>
                                             </div>

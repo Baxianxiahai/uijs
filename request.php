@@ -2087,6 +2087,82 @@ RESPONSE:
 	);
 	$jsonencode = json_encode($retval,JSON_UNESCAPED_UNICODE);
 	echo $jsonencode; break;
+case "AlarmQueryRealtime":
+/*
+REQUEST:
+    var body={
+		StatCode: alarm_selected.StatCode,
+        date: date,
+        type:type
+    };
+    var map={
+        action:"AlarmQueryRealtime",
+		body:body,
+		type:"query",
+		user:usr.id
+    };
+RESPONSE:
+	$body=array(
+		'StatCode'=> $StatCode,
+		'date'=> $query_date,
+		'AlarmName'=> $AlarmName,
+		'AlarmUnit'=> $AlarmUnit,
+		'WarningTarget'=>$WarningTarget,
+		'minute_head'=>$minute_head,
+		'day_head'=>$day_head,
+		'hour_head'=>$hour_head,
+		'minute_alarm'=> $minute_alarm,
+		'hour_alarm'=> $hour_alarm,
+		'day_alarm'=> $day_alarm
+		);
+	$retval= array(
+		'status'=>"true",
+		'ret'=> $body,
+		'msg'=>'success',
+		'auth'=>'true'
+	);
+*/
+	$user = $_GET["user"];
+	$body_in = $_GET['body'];
+	$StatCode = $body_in["StatCode"];
+	$query_date = "";
+	$query_type = $body_in["type"];
+	$AlarmName= "噪声";
+	$AlarmUnit="DB";
+	$WarningTarget='65';
+	$minute_alarm = array();
+	$minute_head = array();
+	for($i=0;$i<(60);$i++){
+		array_push($minute_alarm,rand(10,110));
+		array_push($minute_head,(string)$i);
+	}
+	$hour_alarm = array();
+	$hour_head = array();
+	for($i=0;$i<(24);$i++){
+		array_push($hour_alarm,rand(10,110));
+		array_push($hour_head,(string)$i);
+	}
+	$body=array(
+		'StatCode'=> $StatCode,
+		'date'=> $query_date,
+		'AlarmName'=> $AlarmName,
+		'AlarmUnit'=> $AlarmUnit,
+		'WarningTarget'=>$WarningTarget,
+		'minute_head'=>$minute_head,
+		'hour_head'=>$hour_head,
+		'minute_alarm'=> $minute_alarm,
+		'hour_alarm'=> $hour_alarm,
+		'Alarm_min'=>"50",
+		'Alarm_max'=>"100"
+		);
+	$retval= array(
+		'status'=>"true",
+		'ret'=> $body,
+		'msg'=>'success',
+		'auth'=>'true'
+	);
+	$jsonencode = json_encode($retval,JSON_UNESCAPED_UNICODE);
+	echo $jsonencode; break;
 case "AlarmType":
 /*
 REQUEST:
