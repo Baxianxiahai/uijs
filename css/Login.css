@@ -20,7 +20,8 @@ body {
 .logo{
     position:relative;
     top:0px;
-    height:100px;
+    left:20px;
+    height:150px;
 }
 .leaderboard {
     padding: 60px;
