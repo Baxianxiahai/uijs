@@ -1312,13 +1312,13 @@ $(document).ready(function() {
 	$("#btn_camera_right").on('click',function() {
 		var camera_state_code = $('#VideoModuleStatCode_Input').val();
 		if(camera_state_code!==undefined && camera_state_code!==""){
-			move_camera(camera_state_code,"v","1");
+			move_camera(camera_state_code,"h","1");
 		}
     });
 	$("#btn_camera_left").on('click',function() {
 		var camera_state_code = $('#VideoModuleStatCode_Input').val();
 		if(camera_state_code!==undefined && camera_state_code!==""){
-			move_camera(camera_state_code,"v","-1");
+			move_camera(camera_state_code,"h","-1");
 		}
     });
     $(".lock_monitor_btn").on('click',function() {
@@ -1586,6 +1586,7 @@ function dev_manage(){
 function mp_monitor(){
     clear_window();
     write_title("地图监控","在地图上对站点进行监控");
+    CURRENT_URL = "MPMonitor";
     $("#MPMonitorView").css("display","block");
     console.log("into map:"+map_initialized);
     hide_searchbar();
@@ -6001,6 +6002,7 @@ function query_alarm2(date,type,name){
 
 }
 function query_alarm3(type,name){
+    if(CURRENT_URL !== "MPMonitor") return;
     var body={
         StatCode: alarm_selected.StatCode,
         type:type
