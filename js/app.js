@@ -336,8 +336,8 @@ $(document).ready(function() {
     }
 
     $(".camerazoom").ionRangeSlider({
-        min: 0,
-        max: 10,
+        min: -180,
+        max: 180,
         grid: true,
         force_edges: true,
         onFinish:function(data){
@@ -571,6 +571,7 @@ $(document).ready(function() {
     var monitor_handle= setInterval(get_monitor_warning_on_map, cycle_time);
     var monitor_table_handle= setInterval(query_warning, cycle_time);
     var monitor_alarm_handle= setInterval(alarm_cycle, cycle_time);
+    var monitor_pin_handle= setInterval(monitor_cycle, cycle_time);
     //var monitor_PPT_handle= setInterval(PPTshow, show_time);
     PageInitialize();
     $("#menu_logout").on('click',function(){
@@ -1179,7 +1180,7 @@ $(document).ready(function() {
                 for(i=0;i<alarm_type_list.length;i++){
                     query_alarm3(alarm_type_list[i].id,alarm_type_list[i].name);
                 }
-            },20000);
+            },cycle_time);
         }
         //window.setTimeout(show_table_tags, wait_time_long);
 
@@ -1260,6 +1261,9 @@ $(document).ready(function() {
         if(vcraddress === "") return;
         //video_windows(vcraddress);
         window.open(httphead+"//"+vcraddress,'监控照片',"height=480, width=640, top=0, left=400,toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+    });
+    $("#ModuleVCRreset").on('click',function() {
+        reset_camera($("#VideoModuleStatCode_Input").val());
     });
     $("#MonitorTableFlash").on('click',function() {
         query_static_warning();
@@ -1521,12 +1525,27 @@ function show_table_tags(){
 	$('#Warning_'+alarm_type_list[0].id+'_day').css('display','block');
 }
 function show_table_tags2(){
-    $('#Warning_'+alarm_type_list[0].id+'_day2').css('display','block');
+    //alarm_interval_tab = '#Warning_'+alarm_type_list[0].id+'_day2';
+    //$('#Warning_'+alarm_type_list[0].id+'_day2').css('display','block');
+    alarm_interval_tab = '#Warning_'+alarm_type_list[0].id+'_month2';
+    $('#Warning_'+alarm_type_list[0].id+'_month2').css('display','block');
 }
 function show_table_tags3(){
+    //console.log("last active tab:"+alarm_interval_tab);
     if(alarm_interval_tab === null){
         $('#Warning_'+alarm_type_list[0].id+'_minute2').css('display','block');
+
+        alarm_interval_tab = '#Warning_'+alarm_type_list[0].id+'_minute2';
     }else{
+        $tail = alarm_interval_tab.split('_');
+        if($tail[2] === "day2"||$tail[2] === "week2" ||$tail[2] === "month2"){
+            $("#Alarm_chart_view2").css('display','block');
+            $("#Alarm_chart_realtime_view2").css('display','none');
+        }else{
+            $("#Alarm_chart_view2").css('display','none');
+            $("#Alarm_chart_realtime_view2").css('display','block');
+
+        }
         $(alarm_interval_tab).css('display','block');
     }
 }
@@ -5433,7 +5452,7 @@ function get_monitor_list(){
         }
         monitor_map_list = result.ret;
         addMarker();
-        build_alarm_tabs2();
+        //build_alarm_tabs2();
 	};
 	JQ_get(request_head,map,get_monitor_list_callback);
 	/*
@@ -5654,43 +5673,49 @@ function build_alarm_tabs2(){
         temp = "";
         temp2 = "";
         if(i ===0) {temp = "class='active'"; temp2 = " in active";}
+        /*
         txt1=txt1+"<li class='dropdown'>"+
             "<a href='#' id='Warning_"+alarm_type_list[i].id+"_tab2' class='dropdown-toggle' data-toggle='dropdown'>"+alarm_type_list[i].name+" <b class='caret'></b>"+
             "</a>"+
             "<ul class='dropdown-menu' role='menu' aria-labelledby='Warning_"+alarm_type_list[i].id+"_tab2''>"+
-            "<li><a href='#Warning_"+alarm_type_list[i].id+"_day2' "+temp+" tabindex='-1' data-toggle='tab' id='Warning_"+alarm_type_list[i].id+"_tab_day2' alarmid='"+alarm_type_list[i].id+"'>分钟报表（日）</a> </li>"+
-            "<li><a href='#Warning_"+alarm_type_list[i].id+"_week2' tabindex='-1' data-toggle='tab'  id='Warning_"+alarm_type_list[i].id+"_tab_week2' alarmid='"+ alarm_type_list[i].id+"'>小时报表（周）</a> </li>"+
+            //"<li><a href='#Warning_"+alarm_type_list[i].id+"_day2' "+temp+" tabindex='-1' data-toggle='tab' id='Warning_"+alarm_type_list[i].id+"_tab_day2' alarmid='"+alarm_type_list[i].id+"'>分钟报表（日）</a> </li>"+
+            //"<li><a href='#Warning_"+alarm_type_list[i].id+"_week2' tabindex='-1' data-toggle='tab'  id='Warning_"+alarm_type_list[i].id+"_tab_week2' alarmid='"+ alarm_type_list[i].id+"'>小时报表（周）</a> </li>"+
             "<li><a href='#Warning_"+alarm_type_list[i].id+"_month2' tabindex='-1' data-toggle='tab'  id='Warning_"+alarm_type_list[i].id+"_tab_month2' alarmid='"+alarm_type_list[i].id+"'> 日报表（30天）</a> </li> </ul> </li>";
-
-        txt2 = txt2+
+*/
+        txt1=txt1+"<li class=''><a href='#' data-toggle='tab' aria-expanded='false' id='Warning_"+alarm_type_list[i].id+"_tab_month2' alarmid='"+alarm_type_list[i].id+"'>"+alarm_type_list[i].name+"</a></li>";
+        txt2 = txt2+/*
             "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_day2' >"+
             "<div id='"+alarm_type_list[i].id+"_canvas_day2' class='Alarm_Canvas'></div></div>"+
             "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_week2' >"+
-            "<div id='"+alarm_type_list[i].id+"_canvas_week2' class='Alarm_Canvas' ></div></div>"+
+            "<div id='"+alarm_type_list[i].id+"_canvas_week2' class='Alarm_Canvas' ></div></div>"+*/
             "<div class='Alarm_Canvas' id='Warning_"+alarm_type_list[i].id+"_month2' >"+
             "<div id='"+alarm_type_list[i].id+"_canvas_month2' class='Alarm_Canvas' ></div></div>";
 
     }
     $("#Alarm_chart_view_nav2").append(txt1);
     $("#Alarm_Chart_content2").append(txt2);
+    /*
     Warning_tab_day_click2 = function(){
         hide_all_chart2();
+        alarm_interval_tab = "#Warning_"+$(this).attr('alarmid')+"_day2";
         $("#Warning_"+$(this).attr('alarmid')+"_day2").css("display","block");
     };
     Warning_tab_week_click2 = function(){
         hide_all_chart2();
+        alarm_interval_tab = "#Warning_"+$(this).attr('alarmid')+"_week2";
         $("#Warning_"+$(this).attr('alarmid')+"_week2").css("display","block");
-    };
+    };*/
     Warning_tab_month_click2 = function(){
         hide_all_chart2();
+        alarm_interval_tab = "#Warning_"+$(this).attr('alarmid')+"_month2";
         $("#Warning_"+$(this).attr('alarmid')+"_month2").css("display","block");
     };
 
 
     for( i=0;i<alarm_type_list.length;i++){
 
-        $("#Warning_"+alarm_type_list[i].id+"_tab_day2").on('click',Warning_tab_day_click2);
-        $("#Warning_"+alarm_type_list[i].id+"_tab_week2").on('click',Warning_tab_week_click2);
+        //$("#Warning_"+alarm_type_list[i].id+"_tab_day2").on('click',Warning_tab_day_click2);
+        //$("#Warning_"+alarm_type_list[i].id+"_tab_week2").on('click',Warning_tab_week_click2);
         $("#Warning_"+alarm_type_list[i].id+"_tab_month2").on('click',Warning_tab_month_click2);
     }
 
@@ -5748,8 +5773,8 @@ function build_alarm_tabs2(){
 }
 function hide_all_chart2(){
     for(var i=0;i<alarm_type_list.length;i++){
-        $("#Warning_"+alarm_type_list[i].id+"_day2").css("display","none");
-        $("#Warning_"+alarm_type_list[i].id+"_week2").css("display","none");
+        //$("#Warning_"+alarm_type_list[i].id+"_day2").css("display","none");
+        //$("#Warning_"+alarm_type_list[i].id+"_week2").css("display","none");
         $("#Warning_"+alarm_type_list[i].id+"_month2").css("display","none");
         $("#Warning_"+alarm_type_list[i].id+"_minute2").css("display","none");
         $("#Warning_"+alarm_type_list[i].id+"_hour2").css("display","none");
@@ -5757,8 +5782,8 @@ function hide_all_chart2(){
 }
 function unhide_all_chart2(){
     for(var i=0;i<alarm_type_list.length;i++){
-        $("#Warning_"+alarm_type_list[i].id+"_day2").css("display","block");
-        $("#Warning_"+alarm_type_list[i].id+"_week2").css("display","block");
+        //$("#Warning_"+alarm_type_list[i].id+"_day2").css("display","block");
+        //$("#Warning_"+alarm_type_list[i].id+"_week2").css("display","block");
         $("#Warning_"+alarm_type_list[i].id+"_month2").css("display","block");
 
         $("#Warning_"+alarm_type_list[i].id+"_minute2").css("display","block");
@@ -5814,14 +5839,22 @@ function query_alarm2(date,type,name){
         var day_head = result.ret.day_head;
         var Alarm_min = parseInt(result.ret.Alarm_min);
         var Alarm_max = parseInt(result.ret.Alarm_max);
-
+        var  i=0;
         //console.log(("#"+type+"_canvas_day"));
         //console.log(("#"+type+"_canvas_week"));
         //console.log(("#"+type+"_canvas_month"));
+        /*
         $("#Warning_"+type+"_day2").css("display","block");
         var max = minute_head.length-1;
         if(max > 120) max = 120;
-
+        var series_day2 = [];
+        for(i=0;i<minute_alarm.length;i++){
+            series_day2.push({
+                name: minute_alarm[i].name,
+                data: minute_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_day2").highcharts({
 
             chart: {
@@ -5870,16 +5903,20 @@ function query_alarm2(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: minute_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_day2
         });
         $("#Warning_"+type+"_day2").css("display","none");
         $("#Warning_"+type+"_week2").css("display","block");
         max = hour_head.length-1;
         if(max > 120) max = 120;
+        var series_week2 = [];
+        for(i=0;i<hour_alarm.length;i++){
+            series_week2.push({
+                name: hour_alarm[i].name,
+                data: hour_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_week2").highcharts({
 
             chart: {
@@ -5928,16 +5965,20 @@ function query_alarm2(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: hour_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_week2
         });
-        $("#Warning_"+type+"_week2").css("display","none");
+        $("#Warning_"+type+"_week2").css("display","none");*/
         $("#Warning_"+type+"_month2").css("display","block");
         max = day_head.length-1;
         if(max > 30) max = 30;
+        var series_month2 = [];
+        for(i=0;i<day_alarm.length;i++){
+            series_month2.push({
+                name: day_alarm[i].name,
+                data: day_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_month2").highcharts({
 
             chart: {
@@ -5986,12 +6027,7 @@ function query_alarm2(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: day_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-
-            }]
+            series: series_month2
         });
         $("#Warning_"+type+"_month2").css("display","none");
 
@@ -6029,14 +6065,21 @@ function query_alarm3(type,name){
         var hour_head = result.ret.hour_head;
         var Alarm_min = parseInt(result.ret.Alarm_min);
         var Alarm_max = parseInt(result.ret.Alarm_max);
-
+        var i=0;
         //console.log(("#"+type+"_canvas_day"));
         //console.log(("#"+type+"_canvas_week"));
         //console.log(("#"+type+"_canvas_month"));
         $("#Warning_"+type+"_minute2").css("display","block");
         var max = minute_head.length-1;
         if(max > 120) max = 120;
-
+        var series_minute2 = [];
+        for(i=0;i<minute_alarm.length;i++){
+            series_minute2.push({
+                name: minute_alarm[i].name,
+                data: minute_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_minute2").highcharts({
 
             chart: {
@@ -6085,16 +6128,20 @@ function query_alarm3(type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: minute_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_minute2
         });
         $("#Warning_"+type+"_minute2").css("display","none");
         $("#Warning_"+type+"_hour2").css("display","block");
         max = hour_head.length-1;
         if(max > 120) max = 120;
+        var series_hour2 = [];
+        for(i=0;i<hour_alarm.length;i++){
+            series_hour2.push({
+                name: hour_alarm[i].name,
+                data: hour_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_hour2").highcharts({
 
             chart: {
@@ -6143,11 +6190,7 @@ function query_alarm3(type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: hour_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_hour2
         });
         $("#Warning_"+type+"_hour2").css("display","none");
 
@@ -6174,9 +6217,6 @@ function get_select_monitor(title){
 function addMarker(point){
     // 创建图标对象
     if(monitor_map_list === null) return;
-    var myIcon = new BMap.Icon("./image/map-marker-ball-azure-small.png", new BMap.Size(32, 32),{
-        anchor: new BMap.Size(16, 30)
-    });
 	monitor_mark_click = function(){
 		get_select_monitor(this.getTitle());
         //hyj add for 20170526
@@ -6197,6 +6237,24 @@ function addMarker(point){
     if(monitor_map_list === null) monitor_map_list = [];
     for(var i=0;i<monitor_map_list.length;i++){
         var t_point = new BMap.Point(parseFloat(monitor_map_list[i].Longitude),parseFloat(monitor_map_list[i].Latitude));
+        var iconaddress ="";
+        switch (monitor_map_list[i].Status){
+            case "normal":
+                iconaddress ="./image/map-marker-ball-green-small.png";
+                break;
+            case "warning":
+                iconaddress ="./image/map-marker-ball-orange-small.png";
+                break;
+            case "alarm":
+                iconaddress ="./image/map-marker-ball-pink-small.png";
+                break;
+            default:
+                iconaddress ="./image/map-marker-ball-gray-small.png";
+        }
+
+        var myIcon = new BMap.Icon(iconaddress, new BMap.Size(32, 32),{
+            anchor: new BMap.Size(16, 30)
+        });
         var marker = new BMap.Marker(t_point, {icon: myIcon});
         marker.setTitle(monitor_map_list[i].StatCode+":"+monitor_map_list[i].StatName);
         map_MPMonitor.addOverlay(marker);
@@ -6274,7 +6332,7 @@ function video_Module_selection_change(){
     //console.log($("#Video_query_Input").val());
 
     if($("#VideoModuleStatCode_Input").val()!=="" && $("#VideoModule_query_Input").val()!==""){
-        get_Module_video($("#VideoModuleStatCode_Input").val(),$("#VideoModule_query_Input").val(),$("#VideoModuleHour_choice").val());
+        //get_Module_video($("#VideoModuleStatCode_Input").val(),$("#VideoModule_query_Input").val(),$("#VideoModuleHour_choice").val());
     }
 }
 function get_Module_video(StatCode,date,hour){
@@ -6551,7 +6609,7 @@ function query_static_warning(){
         for( i=0;i<TableData.length;i++){
             txt = txt +"<tr>";
             //txt = txt +"<td><ul class='pagination'> <li><a href='#' class = 'video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></a> </li></ul></td>";
-            txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button>" +
+            txt = txt +"<td><button type='button' class='btn btn-default camera_btn' StateCode='"+TableData[i][0]+"' StateName='"+TableData[i][1]+"' ><em class='glyphicon glyphicon-camera ' aria-hidden='true' ></em></button>" +
                 "</td><td><button type='button' class='btn btn-default video_btn' StateCode='"+TableData[i][0]+"' ><em class='glyphicon glyphicon-play ' aria-hidden='true' ></em></button>" +
                 "</td><td><button type='button' class='btn btn-default map_btn' StateCode='"+TableData[i][0]+"' StateName='"+TableData[i][1]+"' ><em class='glyphicon glyphicon-globe ' aria-hidden='true' ></em></button>" +
                 "</td>";
@@ -6615,9 +6673,10 @@ function query_static_warning(){
         };
         camera_btn_click = function(){
             var statcode = $(this).attr('StateCode');
+            var statname = $(this).attr('StateName');
             //console.log("StateCode_click="+statcode);
             if(statcode!==undefined ){
-                show_cameraModule(statcode);
+                show_cameraModule(statcode,statname);
                 //get_camera_and_video_web(statcode,true,false);
             }
         };
@@ -7012,6 +7071,7 @@ function get_alarm_type_list(){
             return;
         }
         alarm_type_list= result.ret;
+        build_alarm_tabs2();
 	};
 	JQ_get(request_head,map,get_alarm_type_list_callback);
 	/*
@@ -7055,13 +7115,21 @@ function query_alarm(date,type,name){
         var day_head = result.ret.day_head;
         var Alarm_min = parseInt(result.ret.Alarm_min);
         var Alarm_max = parseInt(result.ret.Alarm_max);
-
+        var i=0;
         //console.log(("#"+type+"_canvas_day"));
         //console.log(("#"+type+"_canvas_week"));
         //console.log(("#"+type+"_canvas_month"));
         $("#Warning_"+type+"_day").css("display","block");
         var max = minute_head.length-1;
         if(max > 120) max = 120;
+        var series_day = [];
+        for(i=0;i<minute_alarm.length;i++){
+            series_day.push({
+                name: minute_alarm[i].name,
+                data: minute_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
 
         $("#"+type+"_canvas_day").highcharts({
 
@@ -7111,16 +7179,20 @@ function query_alarm(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: minute_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_day
         });
         $("#Warning_"+type+"_day").css("display","none");
         $("#Warning_"+type+"_week").css("display","block");
         max = hour_head.length-1;
         if(max > 120) max = 120;
+        var series_week = [];
+        for(i=0;i<hour_alarm.length;i++){
+            series_week.push({
+                name: hour_alarm[i].name,
+                data: hour_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_week").highcharts({
 
             chart: {
@@ -7169,16 +7241,20 @@ function query_alarm(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: hour_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-            }]
+            series: series_week
         });
         $("#Warning_"+type+"_week").css("display","none");
         $("#Warning_"+type+"_month").css("display","block");
         max = day_head.length-1;
         if(max > 30) max = 30;
+        var series_month = [];
+        for(i=0;i<day_alarm.length;i++){
+            series_month.push({
+                name: day_alarm[i].name,
+                data: day_alarm[i].items,
+                turboThreshold: 1500
+            });
+        }
         $("#"+type+"_canvas_month").highcharts({
 
             chart: {
@@ -7227,12 +7303,7 @@ function query_alarm(date,type,name){
                     fillOpacity: 0.5
                 }
             },
-            series: [{
-                name: alarm_selected.StatName,
-                data: day_alarm,
-                turboThreshold: 1500       //设置最大数据量1500个
-
-            }]
+            series: series_month
         });
         $("#Warning_"+type+"_month").css("display","none");
 
@@ -7276,6 +7347,11 @@ function alarm_cycle(){
     if(alarm_map_initialized === false) return;
     get_monitor_alarm_list();
     window.setTimeout(alarm_addMarker, wait_time_long);
+}
+function monitor_cycle(){
+    if(map_initialized === false) return;
+    get_monitor_list();
+    window.setTimeout(addMarker, wait_time_long);
 }
 function build_alarm_tabs(){
     if(alarm_type_list === null) return;
@@ -8140,7 +8216,7 @@ function user_message_update(){
 function change_camera_status(hvalue,vvalue,url,zoom){
 	var txt = "当前：水平="+hvalue+"/垂直="+vvalue+"；调节单位：水平="+camera_unit_h+"/垂直="+camera_unit_v;
 
-	$('#VideoModuleCameraState_Input').val(txt);
+	//$('#VideoModuleCameraState_Input').val(txt);
 	$('#video_img').attr("src",url);
     //console.log("zoom="+zoom);
     $('#camera_zoom').data("ionRangeSlider").update({
@@ -8261,12 +8337,47 @@ function move_camera(statcode,vorh,value){
         }
     });*/
 }
-function show_cameraModule(Statcode){
+function reset_camera(statcode){
+
+    var body = {
+        StatCode:statcode
+    };
+    var map = {
+        action: "CameraReset",
+        body:body,
+        type:"mod",
+        user:usr.id
+
+    };
+
+    var move_camera_callback = function(result){
+        var ret = result.status;
+        if(ret == "true"){
+            change_camera_status(result.ret.h,result.ret.v,result.ret.url,result.ret.z);
+        }else{
+            show_alarm_module(true,"改变摄像头参数失败，请重新登录！"+result.msg,null);
+        }
+    };
+    JQ_get(request_head,map,move_camera_callback);
+    /*
+     jQuery.get(request_head, map, function (data) {
+     log(data);
+     var result=JSON.parse(data);
+     var ret = result.status;
+     if(ret == "true"){
+     change_camera_status(result.ret.h,result.ret.v,result.ret.url);
+     }else{
+     show_alarm_module(true,"获取摄像头基本单位，请重新登录！"+result.msg);
+     }
+     });*/
+}
+function show_cameraModule(Statcode,Statname){
     modal_middle($('#VideoSelectionModule'));
     $('#VideoModuleStatCode_Input').val(Statcode);
-    $('#VideoModule_query_Input').val("");
+    $('#VideoModuleStatName_Input').val(Statname);
+    //$('#VideoModule_query_Input').val("");
     //$('#VideoModuleStatCode_Input').val("0");
-	$('#ModuleVCRStatus_choice').empty();
+	//$('#ModuleVCRStatus_choice').empty();
 	
 	get_camera_status(Statcode);
 

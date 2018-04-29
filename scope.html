@@ -95,7 +95,7 @@
                                 </li>
                                 <li><a><i class="fa fa-exclamation-circle"></i> 告警管理 <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
-                                        <li><a href="#" id="WarningCheck">告警查看</a></li>
+                                        <!--li><a href="#" id="WarningCheck">告警查看</a></li-->
                                         <li><a href="#" id="WarningHandle">告警处理</a></li>
                                     </ul>
                                 </li>
@@ -1629,39 +1629,7 @@
                                                 </div>
                                                 <div class="col-md-12 col-sm-12 col-xs-12 column" id="Alarm_chart_view2">
                                                     <ul class="nav nav-tabs" id = "Alarm_chart_view_nav2">
-                                                        <!--li role="presentation" class="active" id="Warning_Noise_tab2"><a href="#Warning_Noise" data-toggle="tab">噪声</a></li-->
-                                                        <li class="dropdown">
-                                                            <a href="#" id="Warning_0_tab2" class="dropdown-toggle"
-                                                               data-toggle="dropdown">噪声 <b class="caret"></b>
-                                                            </a>
-                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="Warning_0_tab">
-                                                                <li><a href="#Warning_0_tab_day" class="active" tabindex="-1" data-toggle="tab">
-                                                                    分钟报表（日）</a>
-                                                                </li>
-                                                                <li><a href="#Warning_0_tab_week" tabindex="-1" data-toggle="tab">
-                                                                    小时报表（周）</a>
-                                                                </li>
-                                                                <li><a href="#Warning_0_tab_month" tabindex="-1" data-toggle="tab">
-                                                                    日报表（30天）</a>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
-                                                        <li class="dropdown">
-                                                            <a href="#" id="Warning_1_tab2" class="dropdown-toggle"
-                                                               data-toggle="dropdown">扬尘 <b class="caret"></b>
-                                                            </a>
-                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="Warning_1_tab">
-                                                                <li><a href="#Warning_1_tab_day" tabindex="-1" data-toggle="tab">
-                                                                    分钟报表（日）</a>
-                                                                </li>
-                                                                <li><a href="#Warning_1_tab_week" tabindex="-1" data-toggle="tab">
-                                                                    小时报表（周）</a>
-                                                                </li>
-                                                                <li><a href="#Warning_1_tab_month" tabindex="-1" data-toggle="tab">
-                                                                    日报表（30天）</a>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
+
 
                                                     </ul>
                                                     <div id="Alarm_Chart_content2" class="tab-content" width="100%">
@@ -4430,8 +4398,15 @@
                                 <span class="input-group-addon" id="VideoModuleStatCode" style="min-width: 100px">站点代码</span>
                                 <input type="text" class="form-control" placeholder="站点代码" aria-describedby="basic-addon1" id="VideoModuleStatCode_Input" disabled="disabled"/>
                             </div>
+                            <div class="input-group ">
+                                <span class="input-group-addon" id="VideoModuleStatName" style="min-width: 100px">站点名称</span>
+                                <input type="text" class="form-control" placeholder="站点名称" aria-describedby="basic-addon1" id="VideoModuleStatName_Input" disabled="disabled"/>
+                            </div>
                         </div>
                         <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                            <button type="button" class="btn btn-primary" id="ModuleVCRreset">位置归零</button>
+                        </div>
+                        <!--div class="col-md-12 col-sm-12 col-xs-12 column" >
                             <div class="form-group " style="height:29px">
                                 <div class="input-group date form_date col-md-5" data-date="" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
                                     <div class="input-group">
@@ -4482,7 +4457,7 @@
                         </div>
                         <div class="col-md-12 col-sm-12 col-xs-12 column" >
                             <button type="button" class="btn btn-primary" id="ModuleVCRshow">播放</button>
-                        </div>
+                        </div-->
 
                         <div class="clearfix"></div>
                         <HR class="HR-map" SIZE=3/>
@@ -4510,14 +4485,14 @@
                     </div>
 
                     <div class="col-md-9 col-sm-9 col-xs-12 column" >
-                        <div class="col-md-12 col-sm-12 col-xs-12 column" >
+                        <!--div class="col-md-12 col-sm-12 col-xs-12 column" >
                             <div class="input-group ">
                                 <span class="input-group-addon" id="VideoModuleCameraState" style="min-width: 100px">摄像头状态</span>
                                 <input type="text" class="form-control" placeholder="摄像头状态" aria-describedby="basic-addon1" id="VideoModuleCameraState_Input" disabled="disabled"/>
                             </div>
                         </div>
                         <p/>
-                        <p/>
+                        <p/-->
                         <div class="col-md-12 col-sm-12 col-xs-12 column" >
                             <p style="text-align : center">
                                 <img src="./video/screenshot/default.png" alt="当前显示" id="video_img" style=" width:100%;margin:auto;"/>
